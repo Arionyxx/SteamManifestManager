@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: '*', // Allow all origins for Tailscale access
   credentials: true
 }));
 app.use(express.json());
@@ -68,7 +68,8 @@ setInterval(async () => {
   }
 }, 5000); // Check every 5 seconds
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
   console.log(`📡 WebSocket server running`);
+  console.log(`🌐 Accessible via Tailscale at http://100.93.186.102:${PORT}`);
 });
