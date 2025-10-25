@@ -1,6 +1,5 @@
 import { useState } from 'react';
-
-const API_BASE = '/api';
+import { API_BASE } from '../config/api.js';
 
 export default function Auth({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);

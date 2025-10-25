@@ -15,13 +15,16 @@ A full-stack web application for managing and sharing Steam game manifests with 
 
 ## 🚀 Quick Start
 
-### Option 1: 100% Free Hosting (10 minutes) 🆓
+### Option 1: 100% Free Hosting (5 minutes) 🆓
 
 **RECOMMENDED** - No credit card needed!
 
+**Frontend on Vercel + Backend on Render**
+
+See `DEPLOYMENT-GUIDE.md` for step-by-step instructions!
+
 ```bash
-# Vercel + Railway + Neon (all free tiers)
-cat FREE-HOSTING-GUIDE.md
+cat DEPLOYMENT-GUIDE.md
 ```
 
 ### Option 2: Firebase (requires billing) 🔥
