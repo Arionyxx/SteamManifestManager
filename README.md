@@ -15,10 +15,14 @@ A full-stack web application for managing and sharing Steam game manifests with 
 
 ## 🚀 Getting Started
 
+> **🎯 QUICK START:** See [START-HERE.md](START-HERE.md) for the simplest 5-minute setup!
+
+> **🐳 DOCKER USERS:** See [DOCKER-SETUP.md](DOCKER-SETUP.md) for Docker-specific instructions!
+
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- PostgreSQL (v13 or higher)
+- Docker Desktop (recommended) OR PostgreSQL (v13 or higher)
 - npm or yarn
 
 ### Installation
