@@ -5,6 +5,18 @@
 ```bash
 npm install
 docker-compose up -d
+```
+
+**Windows - Run this:**
+```bash
+create-env.bat
+npm run db:migrate
+npm run dev
+```
+
+**Mac/Linux - Run this:**
+```bash
+./create-env.sh
 npm run db:migrate
 npm run dev
 ```
@@ -32,6 +44,19 @@ Done! 🎉
 docker-compose down
 ```
 Then try again
+
+### Error: "client password must be a string"
+**Windows:**
+```bash
+create-env.bat
+npm run db:migrate
+```
+
+**Mac/Linux:**
+```bash
+./create-env.sh
+npm run db:migrate
+```
 
 ### Error: "Cannot connect to database"
 Wait 15 seconds after `docker-compose up -d`, then run:
