@@ -6,9 +6,10 @@ Perfect choice! Firebase provides everything in one platform and works great wit
 
 - **Firebase Authentication** - User management (replaces our JWT system)
 - **Cloud Firestore** - Database (NoSQL, faster than PostgreSQL for our use)
-- **Firebase Storage** - File storage (better than storing in DB!)
 - **Firebase Hosting** - Frontend hosting (CDN, SSL, custom domains)
 - **Cloud Functions** (Optional) - Backend API if needed
+
+**NOTE:** Firebase Storage is NOT required. Manifest files are stored as base64-encoded content directly in Firestore documents (up to 1MB per file).
 
 ## 📋 Setup Steps
 
@@ -34,9 +35,7 @@ Perfect choice! Firebase provides everything in one platform and works great wit
 4. Database created!
 
 #### Storage
-1. Go to **Storage** > Get Started
-2. Use production mode rules initially
-3. We'll update security rules later
+**SKIP THIS STEP** - Firebase Storage is not needed. Files are stored in Firestore as base64-encoded strings.
 
 #### Hosting
 1. Go to **Hosting** > Get Started
@@ -58,9 +57,9 @@ firebase init
 
 Select:
 - ✅ Firestore
-- ✅ Storage
 - ✅ Hosting
-- ❌ Functions (optional, not needed for now)
+- ❌ Storage (not needed)
+- ❌ Functions (not needed)
 
 Configure:
 - **Firestore Rules**: Use default
@@ -101,29 +100,9 @@ service cloud.firestore {
 }
 ```
 
-### 6. Update Storage Security Rules
+### 6. Storage Security Rules
 
-Replace content in `storage.rules`:
-
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Helper function to check if user is admin
-    function isAdmin() {
-      return request.auth != null && 
-             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    // Manifest files
-    match /manifests/{manifestId}/{allPaths=**} {
-      allow read: if request.auth != null; // All logged-in users can download
-      allow write: if isAdmin(); // Only admins can upload
-      allow delete: if isAdmin(); // Only admins can delete
-    }
-  }
-}
-```
+**NOT NEEDED** - We don't use Firebase Storage. Files are stored in Firestore.
 
 ### 7. Configure Firebase in Your App
 
@@ -133,13 +112,10 @@ Create `src/config/firebase.js`:
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
@@ -147,7 +123,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Note: Storage not needed - files stored in Firestore as base64
 ```
 
 ### 8. Get Firebase Configuration
@@ -164,9 +140,9 @@ Create `.env.local`:
 VITE_FIREBASE_API_KEY=your-api-key
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
+# Note: STORAGE_BUCKET not needed
 
 # Admin email (first registered user with this email becomes admin)
 VITE_ADMIN_EMAIL=your-admin-email@example.com
@@ -176,7 +152,6 @@ VITE_ADMIN_EMAIL=your-admin-email@example.com
 
 ```bash
 firebase deploy --only firestore:rules
-firebase deploy --only storage:rules
 ```
 
 ### 10. Build and Deploy Frontend
@@ -214,8 +189,7 @@ URL: `https://your-project-id.web.app`
     gameName: "Counter-Strike: Global Offensive",
     depotId: "731",
     manifestId: "1234567890",
-    manifestFileUrl: "gs://bucket/manifests/xyz/file.manifest",
-    luaFileUrl: "gs://bucket/manifests/xyz/file.lua",
+    fileContent: "base64-encoded file content (manifest + lua files)",
     fileSize: 12345,
     uploadedAt: timestamp,
     uploadedBy: userId,
@@ -225,14 +199,9 @@ URL: `https://your-project-id.web.app`
 }
 ```
 
-### Storage Structure
+### File Storage
 
-```
-manifests/
-  ├── {manifestId}/
-  │   ├── {depotId}_{manifestId}.manifest
-  │   └── {gameName}.lua
-```
+Manifest files are stored as base64-encoded strings in the `fileContent` field of each manifest document. This eliminates Firebase Storage requirements and simplifies the architecture.
 
 ## 👑 Making First Admin
 
@@ -324,7 +293,7 @@ npm run build && firebase deploy --only hosting
 
 ### Deploy Rules Only
 ```bash
-firebase deploy --only firestore:rules,storage:rules
+firebase deploy --only firestore:rules
 ```
 
 ### View Logs
@@ -383,23 +352,23 @@ jobs:
 5. **Review security rules** regularly
 6. **Enable multi-factor auth** for admin accounts
 7. **Monitor usage** in Firebase Console
+8. **Note**: Firestore documents max 1MB - sufficient for manifest files
 
 ## 📊 Monitoring
 
 Firebase Console provides:
 - **Authentication**: User signups, logins
-- **Firestore**: Read/write operations, data size
-- **Storage**: File uploads, downloads, bandwidth
+- **Firestore**: Read/write operations, data size, document count
 - **Hosting**: Page views, bandwidth
 - **Performance**: Load times, crashes
 
 ## 💰 Cost Estimate (Pro Plan)
 
 For a small community site:
-- **Storage**: ~1-5GB manifest files
-- **Bandwidth**: ~50-100GB/month
-- **Firestore**: ~500K reads, 50K writes/month
+- **Firestore**: ~500K reads, 50K writes/month, ~1-5GB storage
+- **Bandwidth**: ~50-100GB/month  
 - **Hosting**: Included with Pro
+- **Storage**: Not used (files in Firestore)
 
 **Fits comfortably in Pro plan!**
 
@@ -411,8 +380,8 @@ For a small community site:
 - Check user role in Firestore console
 
 ### Upload Fails
-- Check Storage rules are deployed
-- Verify file size < 100MB (adjust in Storage rules if needed)
+- Verify file size < 1MB (Firestore document limit)
+- For larger files, consider chunking or external storage
 - Check user has admin role
 
 ### Can't Login
@@ -433,9 +402,10 @@ For a small community site:
 Firebase gives you:
 - ✅ Better authentication (built-in)
 - ✅ Real-time updates (Firestore)
-- ✅ File storage (not in DB!)
+- ✅ Simple file storage (base64 in Firestore)
 - ✅ Global CDN (fast worldwide)
 - ✅ All in one place
 - ✅ Pro plan included!
+- ✅ No separate Storage service needed
 
 Perfect choice! 🔥
