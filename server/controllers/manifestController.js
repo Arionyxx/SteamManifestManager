@@ -92,16 +92,16 @@ export const uploadManifest = async (req, res) => {
       manifest_id = filename.replace(/\.(manifest|lua|acf|txt)$/i, '');
     }
     
-    // Combine file contents
+    // Combine file contents as base64 to handle binary data
     let fileContent = '';
     if (manifestFile) {
-      fileContent += '=== MANIFEST FILE ===\n';
-      fileContent += manifestFile.buffer.toString('utf-8');
+      fileContent += '=== MANIFEST FILE (BASE64) ===\n';
+      fileContent += manifestFile.buffer.toString('base64');
     }
     if (luaFile) {
       if (manifestFile) fileContent += '\n\n';
-      fileContent += '=== LUA FILE ===\n';
-      fileContent += luaFile.buffer.toString('utf-8');
+      fileContent += '=== LUA FILE (BASE64) ===\n';
+      fileContent += luaFile.buffer.toString('base64');
     }
     
     const totalSize = (manifestFile?.size || 0) + (luaFile?.size || 0);

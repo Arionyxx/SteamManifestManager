@@ -14,8 +14,31 @@ export default function ManifestCard({ manifest, onDelete, onView }) {
     return `${(kb / 1024).toFixed(2)} MB`;
   };
 
+  const decodeContent = (content) => {
+    try {
+      // Check if content is base64 encoded
+      if (content.includes('BASE64')) {
+        const parts = content.split(/===.*?===/g).filter(p => p.trim());
+        let decoded = '';
+        parts.forEach(part => {
+          try {
+            const base64Content = part.trim();
+            decoded += atob(base64Content) + '\n\n';
+          } catch (e) {
+            decoded += part; // Fallback to original if decode fails
+          }
+        });
+        return decoded;
+      }
+      return content;
+    } catch (e) {
+      return content;
+    }
+  };
+
   const downloadManifest = () => {
-    const blob = new Blob([manifest.file_content], { type: 'text/plain' });
+    const decodedContent = decodeContent(manifest.file_content);
+    const blob = new Blob([decodedContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -75,7 +98,7 @@ export default function ManifestCard({ manifest, onDelete, onView }) {
         {showContent && (
           <div className="mt-4">
             <div className="mockup-code max-h-64 overflow-auto">
-              <pre className="text-xs"><code>{manifest.file_content}</code></pre>
+              <pre className="text-xs"><code>{decodeContent(manifest.file_content)}</code></pre>
             </div>
           </div>
         )}
