@@ -9,7 +9,7 @@ const { Pool } = pg;
 const config = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: { rejectUnauthorized: false }
     }
   : {
       host: process.env.DB_HOST || 'localhost',
@@ -18,6 +18,8 @@ const config = process.env.DATABASE_URL
       user: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD,
     };
+
+console.log('🔧 Database config:', process.env.DATABASE_URL ? 'Using DATABASE_URL' : 'Using individual DB_* vars');
 
 export const pool = new Pool(config);
 
