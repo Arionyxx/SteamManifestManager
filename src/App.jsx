@@ -4,6 +4,7 @@ import UploadModal from './components/UploadModal';
 import ManifestCard from './components/ManifestCard';
 import Stats from './components/Stats';
 import Auth from './components/Auth';
+import Settings from './components/Settings';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -14,7 +15,10 @@ function App() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [theme, setTheme] = useState('dark');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
 
   // Check for existing auth on mount
   useEffect(() => {
@@ -28,6 +32,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   const loadManifests = async () => {
@@ -93,6 +98,14 @@ function App() {
     setToken(null);
   };
 
+  const handleUpdateUser = (updatedUser) => {
+    setUser({
+      id: updatedUser.id,
+      username: updatedUser.username,
+      role: updatedUser.role
+    });
+  };
+
   const handleUpload = async (formData) => {
     const response = await manifestAPI.upload(formData, token);
     if (response.success) {
@@ -128,8 +141,29 @@ function App() {
           <a className="btn btn-ghost text-xl">🐱 Manifest Mew :3</a>
         </div>
         <div className="flex-none gap-2">
-          <div className="badge badge-lg">
-            {user.username} {isAdmin && '👑'}
+          <div className="dropdown dropdown-end">
+            <label tabIndex={0} className="btn btn-ghost">
+              <div className="flex items-center gap-2">
+                <div className="avatar placeholder">
+                  <div className="bg-primary text-primary-content rounded-full w-8">
+                    <span className="text-sm">{user.username.charAt(0).toUpperCase()}</span>
+                  </div>
+                </div>
+                <span>{user.username} {isAdmin && '👑'}</span>
+              </div>
+            </label>
+            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
+              <li>
+                <a onClick={() => setIsSettingsOpen(true)}>
+                  ⚙️ Settings
+                </a>
+              </li>
+              <li>
+                <a onClick={handleLogout}>
+                  🚪 Logout
+                </a>
+              </li>
+            </ul>
           </div>
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
@@ -153,9 +187,6 @@ function App() {
               📤 Upload Manifest
             </button>
           )}
-          <button className="btn btn-ghost" onClick={handleLogout}>
-            🚪 Logout
-          </button>
         </div>
       </div>
 
@@ -214,6 +245,16 @@ function App() {
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={handleUpload}
       />
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <Settings
+          user={user}
+          token={token}
+          onUpdateUser={handleUpdateUser}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
 
       {/* Footer */}
       <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-auto">
