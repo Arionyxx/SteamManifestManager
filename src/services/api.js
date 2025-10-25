@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const manifestAPI = {
   getAll: async (search = '', limit = 50, offset = 0) => {
@@ -40,8 +40,10 @@ export const manifestAPI = {
 };
 
 export const connectWebSocket = (onMessage) => {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${protocol}//${window.location.hostname}:3001`);
+  const wsUrl = import.meta.env.VITE_API_BASE_URL 
+    ? import.meta.env.VITE_API_BASE_URL.replace('http', 'ws')
+    : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:3001`;
+  const ws = new WebSocket(wsUrl);
   
   ws.onopen = () => {
     console.log('✅ WebSocket connected');
