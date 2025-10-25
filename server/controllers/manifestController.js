@@ -43,21 +43,68 @@ export const getManifestById = async (req, res) => {
 
 export const uploadManifest = async (req, res) => {
   try {
-    const { app_id, game_name, depot_id, manifest_id, uploader_name, notes } = req.body;
-    const file = req.file;
+    const { app_id, game_name, uploader_name, notes } = req.body;
+    const manifestFile = req.files?.manifest?.[0];
+    const luaFile = req.files?.lua?.[0];
     
-    if (!file) {
+    if (!manifestFile && !luaFile) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
     
-    if (!app_id || !game_name || !manifest_id) {
+    if (!app_id || !game_name) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Missing required fields: app_id, game_name, manifest_id' 
+        error: 'Missing required fields: app_id, game_name' 
       });
     }
     
-    const fileContent = file.buffer.toString('utf-8');
+    // Extract depot_id and manifest_id from filename
+    // Use manifest file if available, otherwise lua file
+    const primaryFile = manifestFile || luaFile;
+    const filename = primaryFile.originalname;
+    let depot_id = null;
+    let manifest_id = null;
+    
+    // Try to extract from filename patterns
+    const depotManifestPattern = /depot[_-]?(\d+)[_-]?manifest[_-]?(\d+)/i;
+    const simplePattern = /(\d+)[_-](\d+)/;
+    const manifestOnlyPattern = /manifest[_-]?(\d+)/i;
+    
+    let match = filename.match(depotManifestPattern);
+    if (match) {
+      depot_id = match[1];
+      manifest_id = match[2];
+    } else {
+      match = filename.match(simplePattern);
+      if (match) {
+        depot_id = match[1];
+        manifest_id = match[2];
+      } else {
+        match = filename.match(manifestOnlyPattern);
+        if (match) {
+          manifest_id = match[1];
+        }
+      }
+    }
+    
+    // If we couldn't extract manifest_id, use filename without extension
+    if (!manifest_id) {
+      manifest_id = filename.replace(/\.(manifest|lua|acf|txt)$/i, '');
+    }
+    
+    // Combine file contents as base64 to handle binary data
+    let fileContent = '';
+    if (manifestFile) {
+      fileContent += '=== MANIFEST FILE (BASE64) ===\n';
+      fileContent += manifestFile.buffer.toString('base64');
+    }
+    if (luaFile) {
+      if (manifestFile) fileContent += '\n\n';
+      fileContent += '=== LUA FILE (BASE64) ===\n';
+      fileContent += luaFile.buffer.toString('base64');
+    }
+    
+    const totalSize = (manifestFile?.size || 0) + (luaFile?.size || 0);
     
     const result = await pool.query(
       `INSERT INTO manifests 
@@ -71,7 +118,7 @@ export const uploadManifest = async (req, res) => {
          uploader_name = EXCLUDED.uploader_name,
          notes = EXCLUDED.notes
        RETURNING *`,
-      [app_id, game_name, depot_id, manifest_id, fileContent, file.size, uploader_name, notes]
+      [app_id, game_name, depot_id, manifest_id, fileContent, totalSize, uploader_name, notes]
     );
     
     res.json({ success: true, data: result.rows[0] });

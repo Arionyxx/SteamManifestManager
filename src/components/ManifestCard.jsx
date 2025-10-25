@@ -1,7 +1,4 @@
-import { useState } from 'react';
-
-export default function ManifestCard({ manifest, onDelete, onView }) {
-  const [showContent, setShowContent] = useState(false);
+export default function ManifestCard({ manifest, onDelete, canDelete = false }) {
   
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -14,16 +11,50 @@ export default function ManifestCard({ manifest, onDelete, onView }) {
     return `${(kb / 1024).toFixed(2)} MB`;
   };
 
-  const downloadManifest = () => {
-    const blob = new Blob([manifest.file_content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${manifest.game_name}_${manifest.manifest_id}.acf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const downloadManifest = async () => {
+    try {
+      const content = manifest.file_content;
+      
+      // Parse sections
+      const manifestSection = content.match(/=== MANIFEST FILE \(BASE64\) ===\s*([^=]+)/)?.[1]?.trim();
+      const luaSection = content.match(/=== LUA FILE \(BASE64\) ===\s*([^=]+)/)?.[1]?.trim();
+      
+      if (!manifestSection && !luaSection) {
+        alert('No files found to download');
+        return;
+      }
+
+      // Use JSZip dynamically imported
+      const JSZip = (await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')).default;
+      const zip = new JSZip();
+      
+      // Add files to zip
+      if (manifestSection) {
+        const manifestData = atob(manifestSection);
+        const depotId = manifest.depot_id || 'unknown';
+        const manifestId = manifest.manifest_id || 'unknown';
+        zip.file(`${depotId}_${manifestId}.manifest`, manifestData, { binary: true });
+      }
+      
+      if (luaSection) {
+        const luaData = atob(luaSection);
+        zip.file(`${manifest.game_name}.lua`, luaData, { binary: true });
+      }
+      
+      // Generate and download zip
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${manifest.game_name}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download files');
+    }
   };
 
   return (
@@ -72,37 +103,25 @@ export default function ManifestCard({ manifest, onDelete, onView }) {
           )}
         </div>
 
-        {showContent && (
-          <div className="mt-4">
-            <div className="mockup-code max-h-64 overflow-auto">
-              <pre className="text-xs"><code>{manifest.file_content}</code></pre>
-            </div>
-          </div>
-        )}
-
         <div className="card-actions justify-end mt-4">
-          <button 
-            className="btn btn-sm btn-ghost"
-            onClick={() => setShowContent(!showContent)}
-          >
-            {showContent ? 'Hide' : 'View'} Content
-          </button>
           <button 
             className="btn btn-sm btn-info"
             onClick={downloadManifest}
           >
-            Download
+            Download ZIP
           </button>
-          <button 
-            className="btn btn-sm btn-error"
-            onClick={() => {
-              if (confirm('Delete this manifest?')) {
-                onDelete(manifest.id);
-              }
-            }}
-          >
-            Delete
-          </button>
+          {canDelete && (
+            <button 
+              className="btn btn-sm btn-error"
+              onClick={() => {
+                if (confirm('Delete this manifest?')) {
+                  onDelete(manifest.id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </div>

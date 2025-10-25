@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import manifestRoutes from './routes/manifestRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import pool from './db/config.js';
 
 dotenv.config();
@@ -13,13 +14,14 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: '*', // Allow all origins for Tailscale access
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api', manifestRoutes);
 
 // Health check
@@ -68,7 +70,8 @@ setInterval(async () => {
   }
 }, 5000); // Check every 5 seconds
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
   console.log(`📡 WebSocket server running`);
+  console.log(`🌐 Accessible via Tailscale at http://100.93.186.102:${PORT}`);
 });

@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read and update their own profile
+      allow read, update: if isAuthenticated() && request.auth.uid == userId;
+      // Admins can read all user profiles
+      allow read: if isAdmin();
+      // Users can create their own profile on first login
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Manifests collection
+    match /manifests/{manifestId} {
+      // Anyone authenticated can read manifests
+      allow read: if isAuthenticated();
+      // Only admins can create, update, or delete manifests
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Stats collection (optional - for analytics)
+    match /stats/{statId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
