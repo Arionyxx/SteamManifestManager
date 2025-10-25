@@ -40,14 +40,12 @@ In Firebase Console:
 - Start in Production mode
 - Choose region (us-central1 recommended)
 
-**Storage:**
-- Click "Get Started"
-- Start in Production mode
+**NOTE:** Firebase Storage is NOT needed for this app. Manifest files are stored directly in Firestore as base64-encoded strings (up to 1MB per file).
 
 ### 5. Deploy Security Rules
 
 ```bash
-firebase deploy --only firestore:rules,storage:rules
+firebase deploy --only firestore:rules
 ```
 
 ### 6. Get Firebase Config
@@ -63,7 +61,7 @@ Create `.env.local`:
 VITE_FIREBASE_API_KEY=AIzaSy...
 VITE_FIREBASE_AUTH_DOMAIN=your-app.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-app.appspot.com
+# VITE_FIREBASE_STORAGE_BUCKET not needed - files stored in Firestore
 VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123:web:abc123
 ```
@@ -114,7 +112,7 @@ npm run build && firebase deploy --only hosting
 
 **Deploy rules only:**
 ```bash
-firebase deploy --only firestore:rules,storage:rules
+firebase deploy --only firestore:rules
 ```
 
 **View logs:**
@@ -186,17 +184,9 @@ firebase hosting:channel:deploy preview
 }
 ```
 
-### Firebase Storage:
+### File Storage:
 
-```
-manifests/
-  ├── abc123-def456/
-  │   ├── 731_123456.manifest
-  │   └── CounterStrike.lua
-  ├── xyz789-uvw012/
-  │   ├── 441_789012.manifest
-  │   └── TeamFortress2.lua
-```
+Manifest files (.manifest and .lua) are stored directly in Firestore as base64-encoded content within the manifest documents. This eliminates the need for Firebase Storage and simplifies the architecture. Firestore documents support up to 1MB, which is sufficient for manifest files.
 
 ---
 
@@ -216,9 +206,9 @@ Firebase security is **better than our JWT system**:
 ## 📱 Using Firebase
 
 Your current code can stay mostly the same, but you'll use:
-- Firebase Auth instead of JWT
+- Firebase Auth instead of JWT  
 - Firestore instead of PostgreSQL
-- Firebase Storage instead of base64 in DB
+- Base64-encoded files stored in Firestore (NO Firebase Storage needed)
 
 Benefits:
 - Simpler code
