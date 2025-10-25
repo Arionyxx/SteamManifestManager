@@ -1,6 +1,20 @@
 # 🔥 Firebase Quick Start
 
-## ⚡ Super Fast Setup (5 minutes)
+## ⚠️ IMPORTANT: Billing Required
+
+Firebase Hosting requires the **Blaze (pay-as-you-go) plan** which needs a credit card, even though usage stays within free tier limits.
+
+**If you can't enable billing:**
+- See `FREE-HOSTING-GUIDE.md` for 100% free alternatives (Vercel + Railway + Neon)
+- No credit card required!
+
+**If you have access to billing-enabled Firebase:**
+- Continue below for Firebase setup
+- Usually stays free with light usage
+
+---
+
+## ⚡ Firebase Setup (requires billing enabled)
 
 ### 1. Install Firebase CLI
 

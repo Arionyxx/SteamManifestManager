@@ -1,6 +1,16 @@
 # 🔥 Firebase Deployment Guide
 
-Perfect choice! Firebase provides everything in one platform and works great with the Pro plan.
+## ⚠️ IMPORTANT: Billing Required
+
+Firebase Hosting requires the **Blaze (pay-as-you-go) plan** with billing enabled.
+
+**Can't enable billing?** 
+➡️ See `FREE-HOSTING-GUIDE.md` for 100% free alternatives (no credit card needed)
+
+**Have billing-enabled Firebase?**  
+➡️ Continue below - Firebase provides everything in one platform and works great.
+
+---
 
 ## 🎯 Firebase Services We'll Use
 
