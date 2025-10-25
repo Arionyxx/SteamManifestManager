@@ -102,7 +102,8 @@ function App() {
     setUser({
       id: updatedUser.id,
       username: updatedUser.username,
-      role: updatedUser.role
+      role: updatedUser.role,
+      profile_picture: updatedUser.profile_picture
     });
   };
 
@@ -144,9 +145,15 @@ function App() {
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost">
               <div className="flex items-center gap-2">
-                <div className="avatar placeholder">
-                  <div className="bg-primary text-primary-content rounded-full w-8">
-                    <span className="text-sm">{user.username.charAt(0).toUpperCase()}</span>
+                <div className="avatar">
+                  <div className="w-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-1">
+                    {user.profile_picture ? (
+                      <img src={user.profile_picture} alt="Profile" className="object-cover" />
+                    ) : (
+                      <div className="bg-primary text-primary-content rounded-full w-full h-full flex items-center justify-center">
+                        <span className="text-sm">{user.username.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <span>{user.username} {isAdmin && '👑'}</span>
