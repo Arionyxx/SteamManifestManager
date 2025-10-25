@@ -1,0 +1,74 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { WebSocketServer } from 'ws';
+import http from 'http';
+import manifestRoutes from './routes/manifestRoutes.js';
+import pool from './db/config.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api', manifestRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// WebSocket for real-time updates
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (ws) => {
+  console.log('🔌 Client connected to WebSocket');
+  
+  ws.on('close', () => {
+    console.log('🔌 Client disconnected from WebSocket');
+  });
+});
+
+// Broadcast to all connected clients
+export const broadcast = (data) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1) { // OPEN
+      client.send(JSON.stringify(data));
+    }
+  });
+};
+
+// Listen for database changes (using polling - for simple implementation)
+let lastCheckTime = new Date();
+setInterval(async () => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM manifests WHERE uploaded_at > $1 OR updated_at > $1',
+      [lastCheckTime]
+    );
+    
+    if (result.rows.length > 0) {
+      broadcast({ type: 'manifest_update', data: result.rows });
+      lastCheckTime = new Date();
+    }
+  } catch (error) {
+    console.error('Error checking for updates:', error);
+  }
+}, 5000); // Check every 5 seconds
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📡 WebSocket server running`);
+});
