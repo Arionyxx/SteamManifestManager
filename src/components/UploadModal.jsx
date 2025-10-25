@@ -50,7 +50,11 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
   return (
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
-        <h3 className="font-bold text-2xl mb-4">Upload Steam Manifest</h3>
+        <h3 className="font-bold text-2xl mb-4">🔐 Upload Steam Depot Manifest</h3>
+        <div className="alert alert-info mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span className="text-sm">Upload .manifest files from Steam/depots/ folder. Format: depotid_manifestid.manifest</span>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="form-control">
             <label className="label">
@@ -58,7 +62,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
             </label>
             <input
               type="text"
-              placeholder="e.g., 730 (CS:GO)"
+              placeholder="e.g., 730 (CS:GO), 440 (TF2)"
               className="input input-bordered"
               value={formData.app_id}
               onChange={(e) => setFormData({ ...formData, app_id: e.target.value })}
@@ -83,24 +87,27 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Depot ID</span>
+                <span className="label-text">Depot ID *</span>
+                <span className="label-text-alt">From filename</span>
               </label>
               <input
                 type="text"
-                placeholder="Optional"
+                placeholder="e.g., 3716601"
                 className="input input-bordered"
                 value={formData.depot_id}
                 onChange={(e) => setFormData({ ...formData, depot_id: e.target.value })}
+                required
               />
             </div>
 
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Manifest ID *</span>
+                <span className="label-text-alt">From filename</span>
               </label>
               <input
                 type="text"
-                placeholder="Manifest identifier"
+                placeholder="e.g., 3930318588611247096"
                 className="input input-bordered"
                 value={formData.manifest_id}
                 onChange={(e) => setFormData({ ...formData, manifest_id: e.target.value })}
@@ -124,27 +131,33 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Notes</span>
+              <span className="label-text">Notes / Depot Key</span>
+              <span className="label-text-alt">Optional but recommended</span>
             </label>
             <textarea
               className="textarea textarea-bordered"
-              placeholder="Any additional notes..."
+              placeholder="Depot decryption key, build version, notes...\ne.g., Depot Key: 1A2B3C4D5E6F7890ABCDEF1234567890"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows="3"
             ></textarea>
           </div>
 
           <div className="form-control">
             <label className="label">
               <span className="label-text">Manifest File *</span>
+              <span className="label-text-alt">.manifest files only</span>
             </label>
             <input
               type="file"
               className="file-input file-input-bordered w-full"
               onChange={(e) => setFile(e.target.files[0])}
-              accept=".acf,.txt,.manifest"
+              accept=".manifest"
               required
             />
+            <label className="label">
+              <span className="label-text-alt">Find in: C:\Program Files (x86)\Steam\depots\</span>
+            </label>
           </div>
 
           <div className="modal-action">

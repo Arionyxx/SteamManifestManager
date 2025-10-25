@@ -49,15 +49,23 @@ Try uploading a manifest:
 
 ---
 
-## Where to Find Steam Manifests?
+## Where to Find Steam Depot Manifests?
 
-Steam saves manifests as `.acf` files:
+Steam stores depot manifest files in:
 
-- **Windows**: `C:\Program Files (x86)\Steam\steamapps\`
-- **Mac**: `~/Library/Application Support/Steam/steamapps/`
-- **Linux**: `~/.steam/steam/steamapps/`
+- **Windows**: `C:\Program Files (x86)\Steam\depots\`
+- **Mac**: `~/Library/Application Support/Steam/depots/`
+- **Linux**: `~/.steam/steam/depots/`
 
-Look for files like `appmanifest_730.acf` (730 is CS:GO's App ID)
+Look for files like:
+- `3716601_3930318588611247096.manifest`
+- `730_1234567890123456789.manifest`
+
+Format: `{depot_id}_{manifest_id}.manifest`
+
+**Important:** You'll also need depot decryption keys to use these manifests with tools like DepotDownloader!
+
+See [MANIFEST-INFO.md](MANIFEST-INFO.md) for detailed information.
 
 ---
 
