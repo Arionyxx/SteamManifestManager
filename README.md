@@ -13,10 +13,29 @@ A full-stack web application for managing and sharing Steam game manifests with 
 - 📝 **Metadata Support** - Add notes and uploader information
 - 🗑️ **Manage Manifests** - Delete outdated or incorrect manifests
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: 100% Free Hosting (10 minutes) 🆓
 
+**RECOMMENDED** - No credit card needed!
+
+```bash
+# Vercel + Railway + Neon (all free tiers)
+cat FREE-HOSTING-GUIDE.md
+```
+
+### Option 2: Firebase (requires billing) 🔥
+
+**Only if you have billing-enabled Firebase**
+
+```bash
+# Firebase needs Blaze plan (credit card required)
+cat FIREBASE-QUICKSTART.md
+```
+
+### Option 3: Local Development
+
+**Prerequisites:**
 - Node.js (v18 or higher)
 - PostgreSQL (v13 or higher)
 - npm or yarn
@@ -179,6 +198,21 @@ CREATE TABLE manifests (
 
 ## 🚢 Production Deployment
 
+Choose your deployment method:
+
+### 🆓 Free Hosting (No Credit Card)
+See `FREE-HOSTING-GUIDE.md` for:
+- Vercel (Frontend)
+- Railway (Backend)
+- Neon (Database)
+
+### 🔥 Firebase (Requires Billing)
+See `FIREBASE-QUICKSTART.md` for:
+- Firebase Hosting
+- Firestore Database
+- Firebase Auth
+
+### 🖥️ Self-Hosted
 1. Build the frontend:
    ```bash
    npm run build
