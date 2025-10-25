@@ -125,7 +125,7 @@ function App() {
       {/* Navbar */}
       <div className="navbar bg-base-300 shadow-lg">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">🎮 Manifest Mew :3</a>
+          <a className="btn btn-ghost text-xl">🐱 Manifest Mew :3</a>
         </div>
         <div className="flex-none gap-2">
           <div className="badge badge-lg">
@@ -216,7 +216,7 @@ function App() {
       {/* Footer */}
       <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-10">
         <div>
-          <p>🎮 Manifest Mew :3 - Store and manage your Steam game manifests</p>
+          <p>🐱 Manifest Mew :3 - Store and manage your Steam game manifests</p>
         </div>
       </footer>
     </div>
