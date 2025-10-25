@@ -2,7 +2,7 @@ services:
   - type: web
     name: steam-manifest-backend
     env: node
-    buildCommand: npm install
+    buildCommand: npm install && node server/db/migrate.js
     startCommand: node server/index.js
     envVars:
       - key: NODE_ENV
