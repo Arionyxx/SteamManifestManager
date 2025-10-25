@@ -2,6 +2,10 @@
 
 Since Firebase Hosting requires billing enabled (Blaze plan), here are **completely free alternatives** that don't need a credit card.
 
+## ⚠️ UPDATE: Railway No Longer Free
+
+Railway ended their free tier (now requires $5/month). Use **Render** instead - still 100% free!
+
 ## 🎯 Best Free Option: Static Frontend + Backend API
 
 Your app can be split into:
@@ -11,35 +15,41 @@ Your app can be split into:
 
 ---
 
-## 🚀 Option 1: Vercel + Railway + Neon (RECOMMENDED)
+## 🚀 Option 1: Vercel + Render + Neon (RECOMMENDED)
 
 ### ✅ Why This Stack:
 
 - **Vercel**: Free React hosting with CDN
-- **Railway**: Free Node.js backend (500 hours/month)
+- **Render**: Free Node.js backend (750 hours/month)
 - **Neon**: Free PostgreSQL (3GB storage)
 - **Total Cost**: $0/month
 - **Setup Time**: 10 minutes
+- **Credit Card**: NOT required for any service!
 
 ### 📋 Setup Steps:
 
-#### 1. Deploy Backend to Railway
+#### 1. Deploy Backend to Render
 
 ```bash
-# Already configured in railway.json!
-
-# Visit railway.app
-# Connect GitHub repo
-# Deploy from 'server' directory
-# Railway auto-detects Node.js
+# Visit render.com
+# Sign up with GitHub (no credit card!)
+# Click "New +" → "Web Service"
+# Connect your GitHub repo
+# Configure:
+#   Name: steam-manifest-api
+#   Root Directory: (leave blank)
+#   Build Command: npm install
+#   Start Command: node server/index.js
+#   Select FREE plan
 ```
 
-**Environment Variables on Railway:**
+**Environment Variables on Render:**
 ```env
 DATABASE_URL=postgresql://... (from Neon)
 JWT_SECRET=your-secret-key
-PORT=3000
+PORT=10000
 NODE_ENV=production
+CLIENT_URL=https://your-app.vercel.app
 ```
 
 #### 2. Deploy Database to Neon
@@ -54,8 +64,10 @@ NODE_ENV=production
 
 **Run migrations:**
 ```bash
-# Railway will run this automatically
-npm run migrate
+# Render will run npm install automatically
+# After first deploy, run migration via Render Shell:
+# Dashboard → your service → Shell tab
+npm run db:migrate
 ```
 
 #### 3. Deploy Frontend to Vercel
@@ -72,18 +84,20 @@ vercel
 
 **Environment Variables on Vercel:**
 ```env
-VITE_API_BASE_URL=https://your-railway-app.railway.app
+VITE_API_BASE_URL=https://your-app.onrender.com
 ```
 
 ### ✅ Done!
 
 - Frontend: `https://your-app.vercel.app`
-- Backend: `https://your-app.railway.app`
+- Backend: `https://your-app.onrender.com`
 - Database: Neon PostgreSQL
+
+**Note:** Render free tier spins down after 15 min inactivity. First request takes ~30 seconds to wake up.
 
 ---
 
-## 🚀 Option 2: Netlify + Render + Neon
+## 🚀 Option 2: Netlify + Render + Neon (Alternative Frontend)
 
 ### ✅ Why This Stack:
 
@@ -141,15 +155,15 @@ Same as Option 1!
 
 ---
 
-## 🚀 Option 3: GitHub Pages + Railway + Neon
+## 🚀 Option 3: GitHub Pages + Render + Neon
 
 ### ✅ Why This Stack:
 
 - **GitHub Pages**: Free static hosting (built into GitHub!)
-- **Railway**: Free Node.js backend
+- **Render**: Free Node.js backend
 - **Neon**: Free PostgreSQL
 - **Total Cost**: $0/month
-- **No signup needed** (you have GitHub already!)
+- **GitHub already have!**
 
 ### 📋 Setup:
 
@@ -202,7 +216,7 @@ jobs:
 
 #### 2. Backend + Database
 
-Same as Option 1 (Railway + Neon)!
+Same as Option 1 (Render + Neon)!
 
 ---
 
@@ -227,26 +241,26 @@ Same as Option 1 (Railway + Neon)!
 
 ---
 
-## 📊 Free Tier Comparison
+## 📊 Free Tier Comparison (Updated 2025)
 
-| Service | Frontend | Backend | Database |
-|---------|----------|---------|----------|
-| **Vercel** | ✅ Free | ❌ | ❌ |
-| **Netlify** | ✅ Free | ❌ | ❌ |
-| **Railway** | ❌ | ✅ Free (500h/mo) | ❌ |
-| **Render** | ✅ Free | ✅ Free (750h/mo) | ❌ |
-| **Neon** | ❌ | ❌ | ✅ Free (3GB) |
-| **GitHub Pages** | ✅ Free | ❌ | ❌ |
-| **Cloudflare Pages** | ✅ Free | ❌ | ❌ |
+| Service | Frontend | Backend | Database | Credit Card? |
+|---------|----------|---------|----------|-------------|
+| **Vercel** | ✅ Free | ❌ | ❌ | ❌ No |
+| **Netlify** | ✅ Free | ❌ | ❌ | ❌ No |
+| **Render** | ✅ Free | ✅ Free (750h/mo) | ❌ | ❌ No |
+| **Neon** | ❌ | ❌ | ✅ Free (3GB) | ❌ No |
+| **GitHub Pages** | ✅ Free | ❌ | ❌ | ❌ No |
+| **Cloudflare Pages** | ✅ Free | ❌ | ❌ | ❌ No |
+| ~~**Railway**~~ | ❌ | ~~Free~~ **$5/mo** | ❌ | ✅ Yes |
 
 ---
 
 ## 🎯 Our Recommendation for FREE hosting:
 
-### Best Combo:
+### Best Combo (2025):
 ```
 Vercel (Frontend) 
-  → Railway (Backend) 
+  → Render (Backend) 
   → Neon (Database)
 ```
 
@@ -255,8 +269,9 @@ Vercel (Frontend)
 - ✅ Easy setup (GitHub integration)
 - ✅ Auto-deploy on git push
 - ✅ Great performance
-- ✅ No credit card required
+- ✅ **NO credit card required**
 - ✅ Can handle hundreds of users
+- ✅ 750 hours/month backend (good for 24/7 with sleep mode)
 
 ---
 
@@ -271,18 +286,22 @@ Vercel (Frontend)
 # Copy DATABASE_URL
 ```
 
-### 2. Deploy Backend (Railway)
+### 2. Deploy Backend (Render)
 
 ```bash
-# Go to railway.app  
+# Go to render.com
 # Sign up (GitHub OAuth, no card needed)
-# New Project → Deploy from GitHub
-# Select your repo
+# New + → Web Service
+# Connect GitHub repo
+# Build: npm install
+# Start: node server/index.js
+# Plan: FREE
 # Add environment variables:
 DATABASE_URL=<from-neon>
 JWT_SECRET=<generate-random>
-PORT=3000
+PORT=10000
 NODE_ENV=production
+CLIENT_URL=https://your-app.vercel.app
 ```
 
 ### 3. Deploy Frontend (Vercel)
@@ -293,7 +312,7 @@ NODE_ENV=production
 # Import Git Repository
 # Framework: Vite
 # Add environment variable:
-VITE_API_BASE_URL=https://your-app.railway.app
+VITE_API_BASE_URL=https://your-app.onrender.com
 # Deploy!
 ```
 
@@ -323,11 +342,11 @@ SET role = 'admin'
 WHERE email = 'your-email@example.com';
 ```
 
-### Option 2: Via Railway Shell
+### Option 2: Via Render Shell
 
 ```bash
-# In Railway dashboard
-# Open your service → Shell
+# In Render dashboard
+# Open your service → Shell tab
 
 node -e "
 const pool = require('./server/db/config');
@@ -342,10 +361,11 @@ pool.query(
 
 ## 💡 Tips for Free Tier
 
-### Railway (500 hours/month)
-- Restart uses hours
-- Sleeps after inactivity (good!)
-- ~16 hours/day of uptime = perfect for personal use
+### Render (750 hours/month)
+- Spins down after 15 min inactivity
+- Wakes up on first request (~30 sec)
+- Perfect for personal use
+- 750 hours = 31 days of 24/7 uptime!
 
 ### Neon (3GB storage)
 - Plenty for thousands of manifests
@@ -367,9 +387,10 @@ Stay free until you hit:
 - High traffic (>1000 visits/day)
 
 Then consider:
-- Railway Pro: $5/month
+- Render Starter: $7/month (no spin-down)
 - Vercel Pro: $20/month
 - Or migrate to Firebase with billing enabled
+- Or upgrade Neon for more storage
 
 ---
 
@@ -387,15 +408,16 @@ Then consider:
 
 ## ✅ Summary
 
-**For 100% FREE hosting without credit card:**
+**For 100% FREE hosting without credit card (2025):**
 
-1. **Neon** - Free PostgreSQL database
-2. **Railway** - Free Node.js backend API  
-3. **Vercel** - Free React frontend hosting
+1. **Neon** - Free PostgreSQL database (3GB)
+2. **Render** - Free Node.js backend API (750h/mo)  
+3. **Vercel** - Free React frontend hosting (100GB bandwidth)
 
-**Total setup time: 10 minutes**  
+**Total setup time: 15 minutes**  
 **Total cost: $0/month forever**  
 **Credit card: NOT required**  
+**Caveat: Backend sleeps after 15 min (wakes in ~30 sec)**
 
 Perfect for personal use and small communities! 🎮
 
@@ -403,11 +425,11 @@ Perfect for personal use and small communities! 🎮
 
 ## 🔗 Links
 
-- [Neon PostgreSQL](https://neon.tech)
-- [Railway](https://railway.app)
-- [Vercel](https://vercel.com)
-- [Netlify](https://netlify.com)
-- [Render](https://render.com)
-- [Cloudflare Pages](https://pages.cloudflare.com)
+- [Neon PostgreSQL](https://neon.tech) - Free PostgreSQL
+- [Render](https://render.com) - Free backend hosting ⭐ **USE THIS**
+- [Vercel](https://vercel.com) - Free frontend hosting
+- [Netlify](https://netlify.com) - Alternative frontend
+- [Cloudflare Pages](https://pages.cloudflare.com) - Alternative frontend
+- ~~[Railway](https://railway.app)~~ - No longer free ($5/mo minimum)
 
 All support GitHub OAuth signup - no email verification needed!
