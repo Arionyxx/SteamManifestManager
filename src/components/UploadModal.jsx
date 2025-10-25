@@ -2,10 +2,8 @@ import { useState } from 'react';
 
 export default function UploadModal({ isOpen, onClose, onUpload }) {
   const [formData, setFormData] = useState({
-    app_id: '',
     game_name: '',
-    depot_id: '',
-    manifest_id: '',
+    app_id: '',
     uploader_name: '',
     notes: '',
   });
@@ -29,10 +27,8 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     try {
       await onUpload(data);
       setFormData({
-        app_id: '',
         game_name: '',
-        depot_id: '',
-        manifest_id: '',
+        app_id: '',
         uploader_name: '',
         notes: '',
       });
@@ -54,20 +50,6 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">App ID *</span>
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., 730 (CS:GO)"
-              className="input input-bordered"
-              value={formData.app_id}
-              onChange={(e) => setFormData({ ...formData, app_id: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
               <span className="label-text">Game Name *</span>
             </label>
             <input
@@ -80,33 +62,18 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Depot ID</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Optional"
-                className="input input-bordered"
-                value={formData.depot_id}
-                onChange={(e) => setFormData({ ...formData, depot_id: e.target.value })}
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Manifest ID *</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Manifest identifier"
-                className="input input-bordered"
-                value={formData.manifest_id}
-                onChange={(e) => setFormData({ ...formData, manifest_id: e.target.value })}
-                required
-              />
-            </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">App ID *</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g., 730 (CS:GO)"
+              className="input input-bordered"
+              value={formData.app_id}
+              onChange={(e) => setFormData({ ...formData, app_id: e.target.value })}
+              required
+            />
           </div>
 
           <div className="form-control">
@@ -142,7 +109,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
               type="file"
               className="file-input file-input-bordered w-full"
               onChange={(e) => setFile(e.target.files[0])}
-              accept=".acf,.txt,.manifest"
+              accept=".acf,.txt,.manifest,.lua"
               required
             />
           </div>
