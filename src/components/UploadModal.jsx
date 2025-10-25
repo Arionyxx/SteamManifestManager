@@ -9,6 +9,8 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
   });
   const [manifestFile, setManifestFile] = useState(null);
   const [luaFile, setLuaFile] = useState(null);
+  const [gameImage, setGameImage] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -22,6 +24,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     const data = new FormData();
     if (manifestFile) data.append('manifest', manifestFile);
     if (luaFile) data.append('lua', luaFile);
+    if (gameImage) data.append('game_image', gameImage);
     Object.keys(formData).forEach(key => {
       if (formData[key]) data.append(key, formData[key]);
     });
@@ -36,6 +39,8 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
       });
       setManifestFile(null);
       setLuaFile(null);
+      setGameImage('');
+      setImagePreview('');
       onClose();
     } catch (error) {
       alert('Upload failed: ' + error.message);
@@ -102,6 +107,45 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             ></textarea>
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Game Cover Image</span>
+            </label>
+            <div className="flex gap-4 items-start">
+              {imagePreview && (
+                <div className="avatar">
+                  <div className="w-32 h-18 rounded">
+                    <img src={imagePreview} alt="Preview" className="object-cover" />
+                  </div>
+                </div>
+              )}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input file-input-bordered w-full"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) {
+                      alert('Image must be smaller than 2MB');
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setGameImage(reader.result);
+                      setImagePreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                <label className="label">
+                  <span className="label-text-alt">Optional: Upload custom game image (max 2MB)</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="form-control">

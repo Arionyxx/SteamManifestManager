@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function ManifestCard({ manifest, onDelete, canDelete = false }) {
+export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = false }) {
   const [imageError, setImageError] = useState(false);
   
   const formatDate = (dateString) => {
@@ -60,8 +60,8 @@ export default function ManifestCard({ manifest, onDelete, canDelete = false }) 
     }
   };
 
-  // Steam header image URL
-  const steamImageUrl = `https://cdn.cloudflare.steamstatic.com/steam/apps/${manifest.app_id}/header.jpg`;
+  // Use custom game image if available, otherwise fallback to Steam CDN
+  const gameImageUrl = manifest.game_image || `https://cdn.cloudflare.steamstatic.com/steam/apps/${manifest.app_id}/header.jpg`;
 
   const handleDelete = async () => {
     if (window.confirm(`Delete ${manifest.game_name}?`)) {
@@ -80,7 +80,7 @@ export default function ManifestCard({ manifest, onDelete, canDelete = false }) 
       <figure className="h-48 overflow-hidden bg-base-300">
         {!imageError ? (
           <img 
-            src={steamImageUrl} 
+            src={gameImageUrl} 
             alt={manifest.game_name}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -147,12 +147,20 @@ export default function ManifestCard({ manifest, onDelete, canDelete = false }) 
             Download ZIP
           </button>
           {canDelete && (
-            <button 
-              className="btn btn-sm btn-error"
-              onClick={handleDelete}
-            >
-              Delete
-            </button>
+            <>
+              <button 
+                className="btn btn-sm btn-warning"
+                onClick={() => onEdit(manifest)}
+              >
+                Edit
+              </button>
+              <button 
+                className="btn btn-sm btn-error"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </>
           )}
         </div>
       </div>
