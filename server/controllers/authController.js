@@ -110,7 +110,7 @@ export const updateUsername = async (req, res) => {
 
     // Get current user data
     const userResult = await pool.query(
-      'SELECT username_changed_at FROM users WHERE id = $1',
+      'SELECT username_changed_at, role FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -119,18 +119,23 @@ export const updateUsername = async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    const lastChanged = user.username_changed_at ? new Date(user.username_changed_at) : null;
-    const now = new Date();
+    const isAdmin = user.role === 'admin';
 
-    // Check if 30 days have passed since last change
-    if (lastChanged) {
-      const daysSinceLastChange = (now - lastChanged) / (1000 * 60 * 60 * 24);
-      if (daysSinceLastChange < 30) {
-        const daysRemaining = Math.ceil(30 - daysSinceLastChange);
-        return res.status(400).json({
-          success: false,
-          error: `You can change your username again in ${daysRemaining} days`
-        });
+    // Admins can change username anytime, regular users have 30-day cooldown
+    if (!isAdmin) {
+      const lastChanged = user.username_changed_at ? new Date(user.username_changed_at) : null;
+      const now = new Date();
+
+      // Check if 30 days have passed since last change
+      if (lastChanged) {
+        const daysSinceLastChange = (now - lastChanged) / (1000 * 60 * 60 * 24);
+        if (daysSinceLastChange < 30) {
+          const daysRemaining = Math.ceil(30 - daysSinceLastChange);
+          return res.status(400).json({
+            success: false,
+            error: `You can change your username again in ${daysRemaining} days`
+          });
+        }
       }
     }
 

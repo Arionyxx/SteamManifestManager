@@ -13,10 +13,13 @@ function Settings({ user, token, onUpdateUser, onClose }) {
   const [loading, setLoading] = useState(false);
   const [canChangeUsername, setCanChangeUsername] = useState(true);
   const [daysUntilChange, setDaysUntilChange] = useState(0);
+  const isAdmin = user.role === 'admin';
 
   useEffect(() => {
-    // Fetch profile to get username_changed_at
-    fetchProfile();
+    // Admins can always change username, regular users need to check cooldown
+    if (!isAdmin) {
+      fetchProfile();
+    }
   }, []);
 
   const fetchProfile = async () => {
@@ -69,8 +72,11 @@ function Settings({ user, token, onUpdateUser, onClose }) {
           username: data.data.username,
           role: data.data.role
         }));
-        setCanChangeUsername(false);
-        setDaysUntilChange(30);
+        // Only set cooldown for non-admin users
+        if (!isAdmin) {
+          setCanChangeUsername(false);
+          setDaysUntilChange(30);
+        }
       } else {
         setUsernameError(data.error);
       }
@@ -168,7 +174,13 @@ function Settings({ user, token, onUpdateUser, onClose }) {
                   disabled={!canChangeUsername || loading}
                   required
                 />
-                {!canChangeUsername && (
+                {isAdmin ? (
+                  <label className="label">
+                    <span className="label-text-alt text-success">
+                      👑 As an admin, you can change your username anytime!
+                    </span>
+                  </label>
+                ) : !canChangeUsername && (
                   <label className="label">
                     <span className="label-text-alt text-warning">
                       You can change your username again in {daysUntilChange} days
