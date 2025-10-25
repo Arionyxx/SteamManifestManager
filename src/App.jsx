@@ -111,7 +111,7 @@ function App() {
     }
   };
 
-  const themes = ['dark', 'light', 'synthwave', 'cyberpunk'];
+  const themes = ['dark', 'light', 'synthwave', 'cyberpunk', 'mew', 'halloween', '90s'];
 
   // Show auth screen if not logged in
   if (!user || !token) {
