@@ -138,6 +138,34 @@ function Settings({ user, token, onUpdateUser, onClose }) {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      setPictureError('Please select an image file');
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setPictureError('Image must be smaller than 5MB');
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPictureUrl(reader.result);
+      setPictureError('');
+    };
+    reader.onerror = () => {
+      setPictureError('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleProfilePictureUpdate = async (e) => {
     e.preventDefault();
     setPictureError('');
@@ -229,18 +257,17 @@ function Settings({ user, token, onUpdateUser, onClose }) {
                 <div className="flex-1">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Image URL</span>
+                      <span className="label-text">Choose Image</span>
                     </label>
                     <input
-                      type="url"
-                      className="input input-bordered w-full"
-                      placeholder="https://example.com/image.jpg"
-                      value={pictureUrl}
-                      onChange={(e) => setPictureUrl(e.target.value)}
+                      type="file"
+                      accept="image/*"
+                      className="file-input file-input-bordered w-full"
+                      onChange={handleFileSelect}
                       disabled={pictureLoading}
                     />
                     <label className="label">
-                      <span className="label-text-alt">Paste an image URL (will be displayed as a circle)</span>
+                      <span className="label-text-alt">Upload an image from your computer (max 5MB, displayed as circle)</span>
                     </label>
                   </div>
                 </div>
