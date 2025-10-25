@@ -148,9 +148,9 @@ function Settings({ user, token, onUpdateUser, onClose }) {
       return;
     }
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setPictureError('Image must be smaller than 5MB');
+    // Check file size (max 2MB to account for base64 encoding)
+    if (file.size > 2 * 1024 * 1024) {
+      setPictureError('Image must be smaller than 2MB');
       return;
     }
 
@@ -267,7 +267,7 @@ function Settings({ user, token, onUpdateUser, onClose }) {
                       disabled={pictureLoading}
                     />
                     <label className="label">
-                      <span className="label-text-alt">Upload an image from your computer (max 5MB, displayed as circle)</span>
+                      <span className="label-text-alt">Upload an image from your computer (max 2MB, displayed as circle)</span>
                     </label>
                   </div>
                 </div>
