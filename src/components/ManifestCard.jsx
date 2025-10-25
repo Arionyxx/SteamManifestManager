@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 export default function ManifestCard({ manifest, onDelete, canDelete = false }) {
+  const [imageError, setImageError] = useState(false);
   
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -60,19 +63,37 @@ export default function ManifestCard({ manifest, onDelete, canDelete = false }) 
   // Steam header image URL
   const steamImageUrl = `https://cdn.cloudflare.steamstatic.com/steam/apps/${manifest.app_id}/header.jpg`;
 
+  const handleDelete = async () => {
+    if (window.confirm(`Delete ${manifest.game_name}?`)) {
+      try {
+        await onDelete(manifest.id);
+      } catch (error) {
+        console.error('Delete error:', error);
+        alert('Failed to delete manifest');
+      }
+    }
+  };
+
   return (
     <div className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all">
       {/* Game Cover Image */}
-      <figure>
-        <img 
-          src={steamImageUrl} 
-          alt={manifest.game_name}
-          className="w-full h-48 object-cover"
-          onError={(e) => {
-            // Fallback to a placeholder if image fails to load
-            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="460" height="215" viewBox="0 0 460 215"%3E%3Crect fill="%23374151" width="460" height="215"/%3E%3Ctext fill="%23ffffff" font-family="sans-serif" font-size="20" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3E' + encodeURIComponent(manifest.game_name) + '%3C/text%3E%3C/svg%3E';
-          }}
-        />
+      <figure className="h-48 overflow-hidden bg-base-300">
+        {!imageError ? (
+          <img 
+            src={steamImageUrl} 
+            alt={manifest.game_name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-base-300 to-base-100">
+            <div className="text-center p-4">
+              <div className="text-4xl mb-2">🎮</div>
+              <div className="text-sm font-semibold">{manifest.game_name}</div>
+            </div>
+          </div>
+        )}
       </figure>
       <div className="card-body">
         <h2 className="card-title text-xl">
@@ -128,11 +149,7 @@ export default function ManifestCard({ manifest, onDelete, canDelete = false }) 
           {canDelete && (
             <button 
               className="btn btn-sm btn-error"
-              onClick={() => {
-                if (confirm('Delete this manifest?')) {
-                  onDelete(manifest.id);
-                }
-              }}
+              onClick={handleDelete}
             >
               Delete
             </button>
