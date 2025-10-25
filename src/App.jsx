@@ -121,7 +121,7 @@ function App() {
   const isAdmin = user.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-base-100 flex flex-col">
       {/* Navbar */}
       <div className="navbar bg-base-300 shadow-lg">
         <div className="flex-1">
@@ -160,7 +160,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto p-4 space-y-6">
+      <div className="container mx-auto p-4 space-y-6 flex-grow">
         {/* Stats */}
         <Stats stats={stats} loading={statsLoading} />
 
@@ -214,7 +214,7 @@ function App() {
       />
 
       {/* Footer */}
-      <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-10">
+      <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-auto">
         <div>
           <p>🐱 Manifest Mew :3 - Store and manage your Steam game manifests</p>
         </div>
