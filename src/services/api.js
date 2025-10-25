@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+import { API_BASE } from '../config/api.js';
 
 export const manifestAPI = {
   getAll: async (search = '', limit = 50, offset = 0) => {
