@@ -121,7 +121,7 @@ function App() {
   const isAdmin = user.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-base-100 flex flex-col">
       {/* Navbar */}
       <div className="navbar bg-base-300 shadow-lg">
         <div className="flex-1">
@@ -160,23 +160,25 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto p-4 space-y-6">
+      <div className="container mx-auto p-4 space-y-6 flex-grow">
         {/* Stats */}
         <Stats stats={stats} loading={statsLoading} />
 
         {/* Search */}
-        <div className="form-control w-full">
-          <div className="input-group w-full">
-            <input
-              type="text"
-              placeholder="Search by game name or App ID..."
-              className="input input-bordered w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="btn btn-square">
-              🔍
-            </button>
+        <div className="flex justify-center">
+          <div className="form-control w-full max-w-2xl">
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Search by game name or App ID..."
+                className="input input-bordered w-full pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
@@ -214,7 +216,7 @@ function App() {
       />
 
       {/* Footer */}
-      <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-10">
+      <footer className="footer footer-center p-4 bg-base-300 text-base-content mt-auto">
         <div>
           <p>🐱 Manifest Mew :3 - Store and manage your Steam game manifests</p>
         </div>
