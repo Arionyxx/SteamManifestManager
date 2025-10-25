@@ -11,8 +11,22 @@ async function migrate() {
         username VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         role VARCHAR(20) DEFAULT 'user',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        username_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        profile_picture TEXT
       );
+    `);
+
+    // Add username_changed_at column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS username_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+    `);
+
+    // Add profile_picture column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS profile_picture TEXT;
     `);
 
     // Create manifests table

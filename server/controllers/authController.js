@@ -85,7 +85,7 @@ export const login = async (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, role, created_at, username_changed_at FROM users WHERE id = $1',
+      'SELECT id, username, role, created_at, username_changed_at, profile_picture FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -151,13 +151,38 @@ export const updateUsername = async (req, res) => {
 
     // Update username
     const result = await pool.query(
-      'UPDATE users SET username = $1, username_changed_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, role, created_at, username_changed_at',
+      'UPDATE users SET username = $1, username_changed_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, role, created_at, username_changed_at, profile_picture',
       [newUsername, req.user.id]
     );
 
     res.json({ success: true, data: result.rows[0] });
   } catch (error) {
     console.error('Update username error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const updateProfilePicture = async (req, res) => {
+  try {
+    const { profilePictureUrl } = req.body;
+
+    if (!profilePictureUrl) {
+      return res.status(400).json({ success: false, error: 'Profile picture URL required' });
+    }
+
+    // Update profile picture
+    const result = await pool.query(
+      'UPDATE users SET profile_picture = $1 WHERE id = $2 RETURNING id, username, role, created_at, username_changed_at, profile_picture',
+      [profilePictureUrl, req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('Update profile picture error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

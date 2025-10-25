@@ -13,6 +13,11 @@ function Settings({ user, token, onUpdateUser, onClose }) {
   const [loading, setLoading] = useState(false);
   const [canChangeUsername, setCanChangeUsername] = useState(true);
   const [daysUntilChange, setDaysUntilChange] = useState(0);
+  const [profilePicture, setProfilePicture] = useState(user.profile_picture || '');
+  const [pictureUrl, setPictureUrl] = useState(user.profile_picture || '');
+  const [pictureError, setPictureError] = useState('');
+  const [pictureSuccess, setPictureSuccess] = useState('');
+  const [pictureLoading, setPictureLoading] = useState(false);
   const isAdmin = user.role === 'admin';
 
   useEffect(() => {
@@ -31,6 +36,8 @@ function Settings({ user, token, onUpdateUser, onClose }) {
       });
       const data = await response.json();
       if (data.success) {
+        setProfilePicture(data.data.profile_picture || '');
+        setPictureUrl(data.data.profile_picture || '');
         const lastChanged = data.data.username_changed_at ? new Date(data.data.username_changed_at) : null;
         if (lastChanged) {
           const now = new Date();
@@ -131,6 +138,45 @@ function Settings({ user, token, onUpdateUser, onClose }) {
     }
   };
 
+  const handleProfilePictureUpdate = async (e) => {
+    e.preventDefault();
+    setPictureError('');
+    setPictureSuccess('');
+    setPictureLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/auth/profile/picture`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ profilePictureUrl: pictureUrl })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPictureSuccess('Profile picture updated successfully!');
+        setProfilePicture(pictureUrl);
+        onUpdateUser({
+          ...user,
+          profile_picture: pictureUrl
+        });
+        localStorage.setItem('user', JSON.stringify({
+          ...user,
+          profile_picture: pictureUrl
+        }));
+      } else {
+        setPictureError(data.error);
+      }
+    } catch (error) {
+      setPictureError('Failed to update profile picture');
+    } finally {
+      setPictureLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-base-200 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -146,9 +192,15 @@ function Settings({ user, token, onUpdateUser, onClose }) {
           {/* User Info */}
           <div className="mb-6 p-4 bg-base-300 rounded-lg">
             <div className="flex items-center gap-3">
-              <div className="avatar placeholder">
-                <div className="bg-primary text-primary-content rounded-full w-12">
-                  <span className="text-xl">{user.username.charAt(0).toUpperCase()}</span>
+              <div className="avatar">
+                <div className="w-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  {profilePicture ? (
+                    <img src={profilePicture} alt="Profile" className="object-cover" />
+                  ) : (
+                    <div className="bg-primary text-primary-content rounded-full w-full h-full flex items-center justify-center">
+                      <span className="text-xl">{user.username.charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
@@ -157,6 +209,78 @@ function Settings({ user, token, onUpdateUser, onClose }) {
               </div>
             </div>
           </div>
+
+          {/* Update Profile Picture */}
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Profile Picture</h3>
+            <form onSubmit={handleProfilePictureUpdate} className="space-y-4">
+              <div className="flex gap-4 items-start">
+                <div className="avatar">
+                  <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                    {pictureUrl ? (
+                      <img src={pictureUrl} alt="Preview" className="object-cover" />
+                    ) : (
+                      <div className="bg-primary text-primary-content rounded-full w-full h-full flex items-center justify-center">
+                        <span className="text-4xl">{user.username.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Image URL</span>
+                    </label>
+                    <input
+                      type="url"
+                      className="input input-bordered w-full"
+                      placeholder="https://example.com/image.jpg"
+                      value={pictureUrl}
+                      onChange={(e) => setPictureUrl(e.target.value)}
+                      disabled={pictureLoading}
+                    />
+                    <label className="label">
+                      <span className="label-text-alt">Paste an image URL (will be displayed as a circle)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              {pictureError && (
+                <div className="alert alert-error">
+                  <span>{pictureError}</span>
+                </div>
+              )}
+              {pictureSuccess && (
+                <div className="alert alert-success">
+                  <span>{pictureSuccess}</span>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={pictureLoading || pictureUrl === profilePicture}
+                >
+                  {pictureLoading ? <span className="loading loading-spinner"></span> : 'Update Picture'}
+                </button>
+                {profilePicture && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      setPictureUrl('');
+                      handleProfilePictureUpdate(new Event('submit'));
+                    }}
+                    disabled={pictureLoading}
+                  >
+                    Remove Picture
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="divider"></div>
 
           {/* Update Username */}
           <div className="mb-6">
