@@ -5,14 +5,39 @@ This guide shows how to deploy the frontend on Vercel and backend on Render (fre
 ## Architecture
 
 ```
-Frontend (Vercel)  --->  Backend (Render)
-   |                        |
-   |                     Database
-   |                        |
-   +-- API calls via VITE_API_URL
+Frontend (Vercel)  --->  Backend (Render)  --->  Database (Neon)
+   |                        |                        |
+   |                        |                  PostgreSQL
+   |                        |                        |
+   +-- API calls --------> +-- DATABASE_URL --------+
+       via VITE_API_URL
 ```
 
-## Step 1: Deploy Backend on Render
+## Step 1: Create Database on Neon
+
+1. Go to [neon.tech](https://neon.tech) and sign up (free)
+2. Click **Create Project**
+3. Choose a name (e.g., "steam-manifests")
+4. Select region closest to you
+5. Click **Create Project**
+6. **Copy the connection string** (starts with `postgresql://`)
+7. Keep this tab open - you'll need it for Step 2
+
+### Run Database Migration
+
+After creating the Neon database, you need to create the tables:
+
+```bash
+# Install PostgreSQL client if needed
+npm install -g pg
+
+# Run migration (replace with your Neon connection string)
+DATABASE_URL="postgresql://user:pass@host.neon.tech/dbname?sslmode=require" node server/db/migrate.js
+```
+
+Or manually run the SQL from `server/db/migrate.js` in the Neon SQL Editor.
+
+## Step 2: Deploy Backend on Render
 
 1. Go to [render.com](https://render.com) and sign up (free)
 2. Click **New +** > **Web Service**
@@ -31,10 +56,15 @@ NODE_ENV=production
 PORT=3001
 JWT_SECRET=your-secure-secret-here
 ADMIN_SECRET=your-admin-secret-here
-DATABASE_URL=your-database-url (optional, uses SQLite by default)
+DATABASE_URL=postgresql://user:pass@host.neon.tech/dbname?sslmode=require
 ```
 
-## Step 2: Deploy Frontend on Vercel
+⚠️ **Important:** 
+- `DATABASE_URL` must be your Neon connection string from Step 1
+- Generate secure secrets: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+- Keep your secrets safe!
+
+## Step 3: Deploy Frontend on Vercel
 
 1. Go to [vercel.com](https://vercel.com) and sign up (free)
 2. Click **New Project**
@@ -53,7 +83,7 @@ VITE_API_URL=https://your-render-backend-url.onrender.com/api
 
 ⚠️ **Important:** Include `/api` at the end of the URL!
 
-## Step 3: Test Your Deployment
+## Step 4: Test Your Deployment
 
 1. Visit your Vercel URL
 2. Try registering a new account
@@ -90,9 +120,10 @@ npm run dev
 
 ## Cost
 
+- **Neon Free Tier:** 3GB storage, 1 database
 - **Render Free Tier:** Backend spins down after 15 min of inactivity (cold starts)
 - **Vercel Free Tier:** Unlimited bandwidth for personal projects
-- **Total:** $0/month
+- **Total:** $0/month 🎉
 
 ## Alternative: Docker Deployment
 
