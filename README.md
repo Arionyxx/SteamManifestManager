@@ -217,3 +217,40 @@ MIT License - feel free to use this project for any purpose.
 ---
 
 Made with ❤️ for the Steam community
+
+## 🎯 Getting Started Video
+
+Coming soon! Watch this space for a video tutorial on:
+- Setting up the database
+- Uploading your first manifest
+- Using Beehive Studio to manage data
+- Advanced features and tips
+
+## 💬 Community
+
+- Share your manifests
+- Report bugs and request features
+- Contribute to the project
+- Help others get started
+
+## 🔒 Security
+
+This application stores manifest files which may contain sensitive information. Always:
+- Use strong database passwords
+- Enable SSL for production deployments
+- Review uploaded manifests before sharing publicly
+- Keep your dependencies updated
+
+For security issues, please create a private security advisory on GitHub.
+
+## 📊 Performance
+
+The application is optimized for:
+- Fast manifest uploads (up to 10MB files)
+- Quick searches across thousands of manifests
+- Real-time updates with minimal latency
+- Efficient database queries with indexes
+
+## 🌟 Star History
+
+If you find this project useful, please consider giving it a star on GitHub!
