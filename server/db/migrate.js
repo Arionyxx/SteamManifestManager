@@ -4,6 +4,17 @@ async function migrate() {
   try {
     console.log('🚀 Running database migrations...');
 
+    // Create users table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Create manifests table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS manifests (
@@ -27,6 +38,7 @@ async function migrate() {
       CREATE INDEX IF NOT EXISTS idx_app_id ON manifests(app_id);
       CREATE INDEX IF NOT EXISTS idx_game_name ON manifests(game_name);
       CREATE INDEX IF NOT EXISTS idx_uploaded_at ON manifests(uploaded_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_username ON users(username);
     `);
 
     console.log('✅ Migration completed successfully!');

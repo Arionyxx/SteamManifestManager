@@ -1,4 +1,4 @@
-export default function ManifestCard({ manifest, onDelete, onView }) {
+export default function ManifestCard({ manifest, onDelete, canDelete = false }) {
   
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -110,16 +110,18 @@ export default function ManifestCard({ manifest, onDelete, onView }) {
           >
             Download ZIP
           </button>
-          <button 
-            className="btn btn-sm btn-error"
-            onClick={() => {
-              if (confirm('Delete this manifest?')) {
-                onDelete(manifest.id);
-              }
-            }}
-          >
-            Delete
-          </button>
+          {canDelete && (
+            <button 
+              className="btn btn-sm btn-error"
+              onClick={() => {
+                if (confirm('Delete this manifest?')) {
+                  onDelete(manifest.id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </div>

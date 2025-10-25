@@ -3,8 +3,11 @@ import { manifestAPI, connectWebSocket } from './services/api';
 import UploadModal from './components/UploadModal';
 import ManifestCard from './components/ManifestCard';
 import Stats from './components/Stats';
+import Auth from './components/Auth';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [manifests, setManifests] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,6 +15,16 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
+
+  // Check for existing auth on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -68,8 +81,20 @@ function App() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
+  const handleLogin = (userData, userToken) => {
+    setUser(userData);
+    setToken(userToken);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setToken(null);
+  };
+
   const handleUpload = async (formData) => {
-    const response = await manifestAPI.upload(formData);
+    const response = await manifestAPI.upload(formData, token);
     if (response.success) {
       loadManifests();
       loadStats();
@@ -79,7 +104,7 @@ function App() {
   };
 
   const handleDelete = async (id) => {
-    const response = await manifestAPI.delete(id);
+    const response = await manifestAPI.delete(id, token);
     if (response.success) {
       loadManifests();
       loadStats();
@@ -87,6 +112,13 @@ function App() {
   };
 
   const themes = ['dark', 'light', 'synthwave', 'cyberpunk'];
+
+  // Show auth screen if not logged in
+  if (!user || !token) {
+    return <Auth onLogin={handleLogin} />;
+  }
+
+  const isAdmin = user.role === 'admin';
 
   return (
     <div className="min-h-screen bg-base-100">
@@ -96,6 +128,9 @@ function App() {
           <a className="btn btn-ghost text-xl">🎮 Steam Manifest Manager</a>
         </div>
         <div className="flex-none gap-2">
+          <div className="badge badge-lg">
+            {user.username} {isAdmin && '👑'}
+          </div>
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
               🎨
@@ -110,11 +145,16 @@ function App() {
               ))}
             </ul>
           </div>
-          <button 
-            className="btn btn-primary"
-            onClick={() => setIsUploadModalOpen(true)}
-          >
-            📤 Upload Manifest
+          {isAdmin && (
+            <button 
+              className="btn btn-primary"
+              onClick={() => setIsUploadModalOpen(true)}
+            >
+              📤 Upload Manifest
+            </button>
+          )}
+          <button className="btn btn-ghost" onClick={handleLogout}>
+            🚪 Logout
           </button>
         </div>
       </div>
@@ -159,6 +199,7 @@ function App() {
                 key={manifest.id}
                 manifest={manifest}
                 onDelete={handleDelete}
+                canDelete={isAdmin}
               />
             ))}
           </div>

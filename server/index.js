@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import manifestRoutes from './routes/manifestRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import pool from './db/config.js';
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api', manifestRoutes);
 
 // Health check

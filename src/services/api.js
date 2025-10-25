@@ -12,17 +12,23 @@ export const manifestAPI = {
     return response.json();
   },
 
-  upload: async (formData) => {
+  upload: async (formData, token) => {
     const response = await fetch(`${API_BASE}/manifests/upload`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
       body: formData,
     });
     return response.json();
   },
 
-  delete: async (id) => {
+  delete: async (id, token) => {
     const response = await fetch(`${API_BASE}/manifests/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     return response.json();
   },
