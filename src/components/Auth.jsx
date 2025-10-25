@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_BASE = '/api';
+
 export default function Auth({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -16,7 +18,7 @@ export default function Auth({ onLogin }) {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const endpoint = isLogin ? `${API_BASE}/auth/login` : `${API_BASE}/auth/register`;
       const body = isLogin 
         ? { username: formData.username, password: formData.password }
         : formData;
