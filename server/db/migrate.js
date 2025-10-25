@@ -43,8 +43,15 @@ async function migrate() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         uploader_name VARCHAR(100),
         notes TEXT,
+        game_image TEXT,
         UNIQUE(app_id, depot_id, manifest_id)
       );
+    `);
+
+    // Add game_image column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE manifests 
+      ADD COLUMN IF NOT EXISTS game_image TEXT;
     `);
 
     // Create index for faster searches

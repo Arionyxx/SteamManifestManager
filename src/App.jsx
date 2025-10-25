@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { manifestAPI, connectWebSocket } from './services/api';
 import UploadModal from './components/UploadModal';
+import EditModal from './components/EditModal';
 import ManifestCard from './components/ManifestCard';
 import Stats from './components/Stats';
 import Auth from './components/Auth';
@@ -15,6 +16,8 @@ function App() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingManifest, setEditingManifest] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark';
@@ -122,6 +125,26 @@ function App() {
     if (response.success) {
       loadManifests();
       loadStats();
+    }
+  };
+
+  const handleEdit = (manifest) => {
+    setEditingManifest(manifest);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (data) => {
+    const response = await manifestAPI.update(data.id, {
+      game_name: data.game_name,
+      notes: data.notes,
+      game_image: data.game_image
+    }, token);
+    
+    if (response.success) {
+      loadManifests();
+      setIsEditModalOpen(false);
+    } else {
+      throw new Error(response.error);
     }
   };
 
@@ -239,6 +262,7 @@ function App() {
                 key={manifest.id}
                 manifest={manifest}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
                 canDelete={isAdmin}
               />
             ))}
@@ -252,6 +276,19 @@ function App() {
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={handleUpload}
       />
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <EditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingManifest(null);
+          }}
+          manifest={editingManifest}
+          onSave={handleSaveEdit}
+        />
+      )}
 
       {/* Settings Modal */}
       {isSettingsOpen && (

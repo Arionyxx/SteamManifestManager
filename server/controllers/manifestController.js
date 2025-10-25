@@ -43,7 +43,7 @@ export const getManifestById = async (req, res) => {
 
 export const uploadManifest = async (req, res) => {
   try {
-    const { app_id, game_name, uploader_name, notes } = req.body;
+    const { app_id, game_name, uploader_name, notes, game_image } = req.body;
     const manifestFile = req.files?.manifest?.[0];
     const luaFile = req.files?.lua?.[0];
     
@@ -108,17 +108,18 @@ export const uploadManifest = async (req, res) => {
     
     const result = await pool.query(
       `INSERT INTO manifests 
-       (app_id, game_name, depot_id, manifest_id, file_content, file_size, uploader_name, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       (app_id, game_name, depot_id, manifest_id, file_content, file_size, uploader_name, notes, game_image)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (app_id, depot_id, manifest_id) 
        DO UPDATE SET 
          file_content = EXCLUDED.file_content,
          file_size = EXCLUDED.file_size,
          updated_at = CURRENT_TIMESTAMP,
          uploader_name = EXCLUDED.uploader_name,
-         notes = EXCLUDED.notes
+         notes = EXCLUDED.notes,
+         game_image = EXCLUDED.game_image
        RETURNING *`,
-      [app_id, game_name, depot_id, manifest_id, fileContent, totalSize, uploader_name, notes]
+      [app_id, game_name, depot_id, manifest_id, fileContent, totalSize, uploader_name, notes, game_image]
     );
     
     res.json({ success: true, data: result.rows[0] });
@@ -140,6 +141,73 @@ export const deleteManifest = async (req, res) => {
     res.json({ success: true, message: 'Manifest deleted successfully' });
   } catch (error) {
     console.error('Error deleting manifest:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const updateManifest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { game_name, notes, game_image, file_content, uploader_name } = req.body;
+    
+    // Build dynamic update query
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+    
+    if (game_name !== undefined) {
+      updates.push(`game_name = $${paramCount}`);
+      values.push(game_name);
+      paramCount++;
+    }
+    
+    if (notes !== undefined) {
+      updates.push(`notes = $${paramCount}`);
+      values.push(notes);
+      paramCount++;
+    }
+    
+    if (game_image !== undefined) {
+      updates.push(`game_image = $${paramCount}`);
+      values.push(game_image);
+      paramCount++;
+    }
+    
+    if (file_content !== undefined) {
+      updates.push(`file_content = $${paramCount}`);
+      values.push(file_content);
+      paramCount++;
+    }
+    
+    if (uploader_name !== undefined) {
+      updates.push(`uploader_name = $${paramCount}`);
+      values.push(uploader_name);
+      paramCount++;
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, error: 'No fields to update' });
+    }
+    
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(id);
+    
+    const query = `
+      UPDATE manifests 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `;
+    
+    const result = await pool.query(query, values);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Manifest not found' });
+    }
+    
+    res.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating manifest:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };

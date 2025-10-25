@@ -37,6 +37,18 @@ export const manifestAPI = {
     const response = await fetch(`${API_BASE}/manifests/stats`);
     return response.json();
   },
+
+  update: async (id, data, token) => {
+    const response = await fetch(`${API_BASE}/manifests/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
 };
 
 export const connectWebSocket = (onMessage) => {
