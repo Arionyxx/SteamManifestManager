@@ -7,6 +7,8 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
   });
   const [gameImage, setGameImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [manifestFile, setManifestFile] = useState(null);
+  const [luaFile, setLuaFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,11 +27,33 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
     setLoading(true);
 
     try {
+      // If files are selected, we need to process them
+      let fileContent = null;
+      if (manifestFile || luaFile) {
+        // Read and encode files
+        let content = '';
+        if (manifestFile) {
+          const manifestData = await manifestFile.arrayBuffer();
+          const manifestBase64 = btoa(String.fromCharCode(...new Uint8Array(manifestData)));
+          content += '=== MANIFEST FILE (BASE64) ===\n';
+          content += manifestBase64;
+        }
+        if (luaFile) {
+          const luaData = await luaFile.arrayBuffer();
+          const luaBase64 = btoa(String.fromCharCode(...new Uint8Array(luaData)));
+          if (manifestFile) content += '\n\n';
+          content += '=== LUA FILE (BASE64) ===\n';
+          content += luaBase64;
+        }
+        fileContent = content;
+      }
+
       await onSave({
         id: manifest.id,
         game_name: formData.game_name,
         notes: formData.notes,
         game_image: gameImage,
+        file_content: fileContent,
       });
       onClose();
     } catch (error) {
@@ -78,6 +102,50 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
               rows="4"
             ></textarea>
           </div>
+
+          <div className="divider">Files</div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Replace Manifest File (.manifest, .acf, .txt)</span>
+            </label>
+            <input
+              type="file"
+              className="file-input file-input-bordered w-full"
+              onChange={(e) => setManifestFile(e.target.files[0])}
+              accept=".acf,.txt,.manifest"
+            />
+            {manifestFile && (
+              <label className="label">
+                <span className="label-text-alt text-success">✓ {manifestFile.name} - Will replace existing</span>
+              </label>
+            )}
+            <label className="label">
+              <span className="label-text-alt">Optional: Upload new manifest file to replace current version</span>
+            </label>
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Replace Lua File (.lua)</span>
+            </label>
+            <input
+              type="file"
+              className="file-input file-input-bordered w-full"
+              onChange={(e) => setLuaFile(e.target.files[0])}
+              accept=".lua"
+            />
+            {luaFile && (
+              <label className="label">
+                <span className="label-text-alt text-success">✓ {luaFile.name} - Will replace existing</span>
+              </label>
+            )}
+            <label className="label">
+              <span className="label-text-alt">Optional: Upload new lua script to replace current version</span>
+            </label>
+          </div>
+
+          <div className="divider">Appearance</div>
 
           <div className="form-control">
             <label className="label">
