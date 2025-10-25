@@ -44,9 +44,10 @@ export const getManifestById = async (req, res) => {
 export const uploadManifest = async (req, res) => {
   try {
     const { app_id, game_name, uploader_name, notes } = req.body;
-    const file = req.file;
+    const manifestFile = req.files?.manifest?.[0];
+    const luaFile = req.files?.lua?.[0];
     
-    if (!file) {
+    if (!manifestFile && !luaFile) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
     
@@ -58,11 +59,9 @@ export const uploadManifest = async (req, res) => {
     }
     
     // Extract depot_id and manifest_id from filename
-    // Expected formats: 
-    // - depot_XXXXX_manifest_YYYYY.manifest
-    // - XXXXX_YYYYY.manifest
-    // - manifest_YYYYY.lua
-    const filename = file.originalname;
+    // Use manifest file if available, otherwise lua file
+    const primaryFile = manifestFile || luaFile;
+    const filename = primaryFile.originalname;
     let depot_id = null;
     let manifest_id = null;
     
@@ -93,7 +92,19 @@ export const uploadManifest = async (req, res) => {
       manifest_id = filename.replace(/\.(manifest|lua|acf|txt)$/i, '');
     }
     
-    const fileContent = file.buffer.toString('utf-8');
+    // Combine file contents
+    let fileContent = '';
+    if (manifestFile) {
+      fileContent += '=== MANIFEST FILE ===\n';
+      fileContent += manifestFile.buffer.toString('utf-8');
+    }
+    if (luaFile) {
+      if (manifestFile) fileContent += '\n\n';
+      fileContent += '=== LUA FILE ===\n';
+      fileContent += luaFile.buffer.toString('utf-8');
+    }
+    
+    const totalSize = (manifestFile?.size || 0) + (luaFile?.size || 0);
     
     const result = await pool.query(
       `INSERT INTO manifests 
@@ -107,7 +118,7 @@ export const uploadManifest = async (req, res) => {
          uploader_name = EXCLUDED.uploader_name,
          notes = EXCLUDED.notes
        RETURNING *`,
-      [app_id, game_name, depot_id, manifest_id, fileContent, file.size, uploader_name, notes]
+      [app_id, game_name, depot_id, manifest_id, fileContent, totalSize, uploader_name, notes]
     );
     
     res.json({ success: true, data: result.rows[0] });

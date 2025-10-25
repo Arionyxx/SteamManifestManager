@@ -7,19 +7,21 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     uploader_name: '',
     notes: '',
   });
-  const [file, setFile] = useState(null);
+  const [manifestFile, setManifestFile] = useState(null);
+  const [luaFile, setLuaFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      alert('Please select a manifest file');
+    if (!manifestFile && !luaFile) {
+      alert('Please select at least one file (.manifest or .lua)');
       return;
     }
 
     setLoading(true);
     const data = new FormData();
-    data.append('manifest', file);
+    if (manifestFile) data.append('manifest', manifestFile);
+    if (luaFile) data.append('lua', luaFile);
     Object.keys(formData).forEach(key => {
       if (formData[key]) data.append(key, formData[key]);
     });
@@ -32,7 +34,8 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
         uploader_name: '',
         notes: '',
       });
-      setFile(null);
+      setManifestFile(null);
+      setLuaFile(null);
       onClose();
     } catch (error) {
       alert('Upload failed: ' + error.message);
@@ -103,15 +106,36 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Manifest File *</span>
+              <span className="label-text">Manifest File (.manifest, .acf, .txt)</span>
             </label>
             <input
               type="file"
               className="file-input file-input-bordered w-full"
-              onChange={(e) => setFile(e.target.files[0])}
-              accept=".acf,.txt,.manifest,.lua"
-              required
+              onChange={(e) => setManifestFile(e.target.files[0])}
+              accept=".acf,.txt,.manifest"
             />
+            {manifestFile && (
+              <label className="label">
+                <span className="label-text-alt text-success">✓ {manifestFile.name}</span>
+              </label>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Lua File (.lua)</span>
+            </label>
+            <input
+              type="file"
+              className="file-input file-input-bordered w-full"
+              onChange={(e) => setLuaFile(e.target.files[0])}
+              accept=".lua"
+            />
+            {luaFile && (
+              <label className="label">
+                <span className="label-text-alt text-success">✓ {luaFile.name}</span>
+              </label>
+            )}
           </div>
 
           <div className="modal-action">
