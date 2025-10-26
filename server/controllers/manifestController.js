@@ -96,11 +96,29 @@ export const uploadManifest = async (req, res) => {
     let fileContent = '';
     let totalSize = 0;
     
-    // Add all manifest files
+    // Add all manifest files with filename metadata
     for (let i = 0; i < manifestFiles.length; i++) {
       const manifestFile = manifestFiles[i];
       if (i > 0) fileContent += '\n\n';
-      fileContent += '=== MANIFEST FILE (BASE64) ===\n';
+      
+      // Extract depot_id and manifest_id from this specific file
+      const thisFilename = manifestFile.originalname;
+      let thisDepotId = null;
+      let thisManifestId = null;
+      
+      // Try to extract IDs from filename
+      const match1 = thisFilename.match(/(\d+)[_-](\d+)/);
+      if (match1) {
+        thisDepotId = match1[1];
+        thisManifestId = match1[2];
+      }
+      
+      // Store metadata in header
+      fileContent += '=== MANIFEST FILE (BASE64) ===';
+      if (thisDepotId && thisManifestId) {
+        fileContent += ` [${thisDepotId}_${thisManifestId}]`;
+      }
+      fileContent += '\n';
       fileContent += manifestFile.buffer.toString('base64');
       totalSize += manifestFile.size;
     }
