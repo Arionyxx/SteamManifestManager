@@ -34,13 +34,30 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
         // Read and encode files
         let content = '';
         
-        // Process all manifest files
+        // Process all manifest files with metadata
         for (let i = 0; i < manifestFiles.length; i++) {
           const manifestFile = manifestFiles[i];
           const manifestData = await manifestFile.arrayBuffer();
           const manifestBase64 = arrayBufferToBase64(manifestData);
           if (i > 0) content += '\n\n';
-          content += '=== MANIFEST FILE (BASE64) ===\n';
+          
+          // Extract depot_id and manifest_id from filename
+          const filename = manifestFile.name;
+          let depotId = null;
+          let manifestId = null;
+          
+          const match = filename.match(/(\d+)[_-](\d+)/);
+          if (match) {
+            depotId = match[1];
+            manifestId = match[2];
+          }
+          
+          // Store metadata in header
+          content += '=== MANIFEST FILE (BASE64) ===';
+          if (depotId && manifestId) {
+            content += ` [${depotId}_${manifestId}]`;
+          }
+          content += '\n';
           content += manifestBase64;
         }
         

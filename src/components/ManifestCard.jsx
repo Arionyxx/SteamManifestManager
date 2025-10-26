@@ -20,9 +20,9 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
       
       console.log('File content preview:', content.substring(0, 200));
       
-      // Parse ALL manifest sections (supports multiple manifests)
-      // Match everything until the next section header or end of string
-      const manifestRegex = /=== MANIFEST FILE \(BASE64\) ===\s*\n([A-Za-z0-9+/=\s]+?)(?=\n\n===|$)/gs;
+      // Parse ALL manifest sections with optional metadata
+      // Format: === MANIFEST FILE (BASE64) === [depot_id_manifest_id]\n
+      const manifestRegex = /=== MANIFEST FILE \(BASE64\) ===(?:\s*\[(\d+)_(\d+)\])?\s*\n([A-Za-z0-9+/=\s]+?)(?=\n\n===|$)/gs;
       const luaRegex = /=== LUA FILE \(BASE64\) ===\s*\n([A-Za-z0-9+/=\s]+?)(?=\n\n===|$)/s;
       
       const manifestMatches = [...content.matchAll(manifestRegex)];
@@ -43,22 +43,31 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
       // Add ALL manifest files to zip
       if (manifestMatches.length > 0) {
         manifestMatches.forEach((match, index) => {
-          const manifestBase64 = match[1].trim();
+          // match[1] = depot_id (from metadata)
+          // match[2] = manifest_id (from metadata)
+          // match[3] = base64 data
+          const metadataDepotId = match[1];
+          const metadataManifestId = match[2];
+          const manifestBase64 = match[3].trim();
           const manifestData = atob(manifestBase64);
           
-          // Generate filename for each manifest
+          // Generate filename using metadata if available
           let filename;
-          if (manifestMatches.length === 1) {
-            // Single manifest - use depot_id if available
+          if (metadataDepotId && metadataManifestId) {
+            // Use metadata from header
+            filename = `${metadataDepotId}_${metadataManifestId}.manifest`;
+          } else if (manifestMatches.length === 1) {
+            // Single manifest - use depot_id from card metadata
             const depotId = manifest.depot_id || 'unknown';
             const manifestId = manifest.manifest_id || 'unknown';
             filename = `${depotId}_${manifestId}.manifest`;
           } else {
-            // Multiple manifests - number them
+            // Multiple manifests without metadata - fallback to numbering
             const depotId = manifest.depot_id || 'depot';
             filename = `${depotId}_${index + 1}.manifest`;
           }
           
+          console.log('Adding manifest to ZIP:', filename);
           zip.file(filename, manifestData, { binary: true });
         });
       }
