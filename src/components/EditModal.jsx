@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { arrayBufferToBase64 } from '../utils/fileHelpers';
 
 export default function EditModal({ isOpen, onClose, manifest, onSave }) {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
         for (let i = 0; i < manifestFiles.length; i++) {
           const manifestFile = manifestFiles[i];
           const manifestData = await manifestFile.arrayBuffer();
-          const manifestBase64 = btoa(String.fromCharCode(...new Uint8Array(manifestData)));
+          const manifestBase64 = arrayBufferToBase64(manifestData);
           if (i > 0) content += '\n\n';
           content += '=== MANIFEST FILE (BASE64) ===\n';
           content += manifestBase64;
@@ -45,7 +46,7 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
         
         if (luaFile) {
           const luaData = await luaFile.arrayBuffer();
-          const luaBase64 = btoa(String.fromCharCode(...new Uint8Array(luaData)));
+          const luaBase64 = arrayBufferToBase64(luaData);
           if (manifestFiles.length > 0) content += '\n\n';
           content += '=== LUA FILE (BASE64) ===\n';
           content += luaBase64;
