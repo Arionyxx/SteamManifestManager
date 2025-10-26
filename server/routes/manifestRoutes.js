@@ -19,7 +19,7 @@ router.get('/manifests/stats', getStats);
 router.get('/manifests/:id', getManifestById);
 
 // Admin-only routes
-router.post('/manifests/upload', authenticateToken, requireAdmin, upload.fields([{ name: 'manifest', maxCount: 1 }, { name: 'lua', maxCount: 1 }]), uploadManifest);
+router.post('/manifests/upload', authenticateToken, requireAdmin, upload.fields([{ name: 'manifest', maxCount: 10 }, { name: 'lua', maxCount: 1 }]), uploadManifest);
 router.put('/manifests/:id', authenticateToken, requireAdmin, updateManifest);
 router.delete('/manifests/:id', authenticateToken, requireAdmin, deleteManifest);
 

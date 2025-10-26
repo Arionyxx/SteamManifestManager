@@ -44,10 +44,10 @@ export const getManifestById = async (req, res) => {
 export const uploadManifest = async (req, res) => {
   try {
     const { app_id, game_name, uploader_name, notes, game_image } = req.body;
-    const manifestFile = req.files?.manifest?.[0];
+    const manifestFiles = req.files?.manifest || [];
     const luaFile = req.files?.lua?.[0];
     
-    if (!manifestFile && !luaFile) {
+    if (manifestFiles.length === 0 && !luaFile) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
     
@@ -58,9 +58,9 @@ export const uploadManifest = async (req, res) => {
       });
     }
     
-    // Extract depot_id and manifest_id from filename
-    // Use manifest file if available, otherwise lua file
-    const primaryFile = manifestFile || luaFile;
+    // Extract depot_id and manifest_id from first manifest filename
+    // Use first manifest file if available, otherwise lua file
+    const primaryFile = manifestFiles[0] || luaFile;
     const filename = primaryFile.originalname;
     let depot_id = null;
     let manifest_id = null;
@@ -94,17 +94,24 @@ export const uploadManifest = async (req, res) => {
     
     // Combine file contents as base64 to handle binary data
     let fileContent = '';
-    if (manifestFile) {
+    let totalSize = 0;
+    
+    // Add all manifest files
+    for (let i = 0; i < manifestFiles.length; i++) {
+      const manifestFile = manifestFiles[i];
+      if (i > 0) fileContent += '\n\n';
       fileContent += '=== MANIFEST FILE (BASE64) ===\n';
       fileContent += manifestFile.buffer.toString('base64');
-    }
-    if (luaFile) {
-      if (manifestFile) fileContent += '\n\n';
-      fileContent += '=== LUA FILE (BASE64) ===\n';
-      fileContent += luaFile.buffer.toString('base64');
+      totalSize += manifestFile.size;
     }
     
-    const totalSize = (manifestFile?.size || 0) + (luaFile?.size || 0);
+    // Add lua file if present
+    if (luaFile) {
+      if (manifestFiles.length > 0) fileContent += '\n\n';
+      fileContent += '=== LUA FILE (BASE64) ===\n';
+      fileContent += luaFile.buffer.toString('base64');
+      totalSize += luaFile.size;
+    }
     
     const result = await pool.query(
       `INSERT INTO manifests 
