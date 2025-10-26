@@ -14,7 +14,10 @@ const router = express.Router();
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit for manifest files
+    fileSize: 50 * 1024 * 1024, // 50MB limit per file
+    fieldSize: 50 * 1024 * 1024, // 50MB limit for text fields (for base64 images)
+    fields: 20, // Max number of non-file fields
+    parts: 50 // Max number of parts (files + fields)
   }
 });
 

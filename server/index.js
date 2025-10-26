@@ -39,15 +39,36 @@ app.get('/health', (req, res) => {
 // Error handling middleware for multer errors
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
+    console.error('Multer error:', err);
+    
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ 
         success: false, 
         error: 'File too large. Maximum size is 50MB per file.' 
       });
     }
+    if (err.code === 'LIMIT_FIELD_VALUE') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Field value too large. Try uploading smaller images or fewer files.' 
+      });
+    }
+    if (err.code === 'LIMIT_PART_COUNT') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Too many parts. Maximum is 50 files + fields combined.' 
+      });
+    }
+    if (err.code === 'LIMIT_FIELD_COUNT') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Too many fields. Maximum is 20 non-file fields.' 
+      });
+    }
+    
     return res.status(400).json({ 
       success: false, 
-      error: `Upload error: ${err.message}` 
+      error: `Upload error: ${err.message} (${err.code})` 
     });
   }
   
