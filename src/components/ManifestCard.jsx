@@ -18,12 +18,18 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
     try {
       const content = manifest.file_content;
       
+      console.log('File content preview:', content.substring(0, 200));
+      
       // Parse ALL manifest sections (supports multiple manifests)
-      const manifestRegex = /=== MANIFEST FILE \(BASE64\) ===\s*([^=]+?)(?=\n\n===|$)/gs;
-      const luaRegex = /=== LUA FILE \(BASE64\) ===\s*([^=]+?)(?=\n\n===|$)/s;
+      // Match everything until the next section header or end of string
+      const manifestRegex = /=== MANIFEST FILE \(BASE64\) ===\s*\n([A-Za-z0-9+/=\s]+?)(?=\n\n===|$)/gs;
+      const luaRegex = /=== LUA FILE \(BASE64\) ===\s*\n([A-Za-z0-9+/=\s]+?)(?=\n\n===|$)/s;
       
       const manifestMatches = [...content.matchAll(manifestRegex)];
       const luaMatch = content.match(luaRegex);
+      
+      console.log('Found manifest sections:', manifestMatches.length);
+      console.log('Found lua section:', luaMatch ? 'yes' : 'no');
       
       if (manifestMatches.length === 0 && !luaMatch) {
         alert('No files found to download');
