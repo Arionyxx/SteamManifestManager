@@ -18,11 +18,14 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
     try {
       const content = manifest.file_content;
       
-      // Parse sections
-      const manifestSection = content.match(/=== MANIFEST FILE \(BASE64\) ===\s*([^=]+)/)?.[1]?.trim();
-      const luaSection = content.match(/=== LUA FILE \(BASE64\) ===\s*([^=]+)/)?.[1]?.trim();
+      // Parse ALL manifest sections (supports multiple manifests)
+      const manifestRegex = /=== MANIFEST FILE \(BASE64\) ===\s*([^=]+?)(?=\n\n===|$)/gs;
+      const luaRegex = /=== LUA FILE \(BASE64\) ===\s*([^=]+?)(?=\n\n===|$)/s;
       
-      if (!manifestSection && !luaSection) {
+      const manifestMatches = [...content.matchAll(manifestRegex)];
+      const luaMatch = content.match(luaRegex);
+      
+      if (manifestMatches.length === 0 && !luaMatch) {
         alert('No files found to download');
         return;
       }
@@ -31,16 +34,33 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
       const JSZip = (await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')).default;
       const zip = new JSZip();
       
-      // Add files to zip
-      if (manifestSection) {
-        const manifestData = atob(manifestSection);
-        const depotId = manifest.depot_id || 'unknown';
-        const manifestId = manifest.manifest_id || 'unknown';
-        zip.file(`${depotId}_${manifestId}.manifest`, manifestData, { binary: true });
+      // Add ALL manifest files to zip
+      if (manifestMatches.length > 0) {
+        manifestMatches.forEach((match, index) => {
+          const manifestBase64 = match[1].trim();
+          const manifestData = atob(manifestBase64);
+          
+          // Generate filename for each manifest
+          let filename;
+          if (manifestMatches.length === 1) {
+            // Single manifest - use depot_id if available
+            const depotId = manifest.depot_id || 'unknown';
+            const manifestId = manifest.manifest_id || 'unknown';
+            filename = `${depotId}_${manifestId}.manifest`;
+          } else {
+            // Multiple manifests - number them
+            const depotId = manifest.depot_id || 'depot';
+            filename = `${depotId}_${index + 1}.manifest`;
+          }
+          
+          zip.file(filename, manifestData, { binary: true });
+        });
       }
       
-      if (luaSection) {
-        const luaData = atob(luaSection);
+      // Add lua file if present
+      if (luaMatch) {
+        const luaBase64 = luaMatch[1].trim();
+        const luaData = atob(luaBase64);
         zip.file(`${manifest.game_name}.lua`, luaData, { binary: true });
       }
       
