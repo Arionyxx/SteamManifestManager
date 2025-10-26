@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OG Image Generator - Manifest Mew</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .og-image {
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .og-image::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: drift 20s linear infinite;
+        }
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 60px;
+        }
+        .logo {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .title {
+            font-size: 72px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+        .subtitle {
+            font-size: 36px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+        .features {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .feature {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .footer {
+            position: absolute;
+            bottom: 40px;
+            font-size: 28px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+        .instructions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 300px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h3>📸 How to Create OG Image</h3>
+        <ol>
+            <li>Press F11 for fullscreen</li>
+            <li>Take screenshot (Windows: Win+Shift+S)</li>
+            <li>Crop to 1200x630</li>
+            <li>Save as og-image.png</li>
+            <li>Place in /public/ folder</li>
+        </ol>
+        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+            Or use a tool like <a href="https://screenshotone.com" target="_blank">screenshotone.com</a>
+        </p>
+    </div>
+
+    <div class="og-image">
+        <div class="content">
+            <div class="logo">🐱</div>
+            <h1 class="title">Manifest Mew</h1>
+            <p class="subtitle">Steam Manifest Manager</p>
+            <div class="features">
+                <div class="feature">📤 Upload</div>
+                <div class="feature">📦 Store</div>
+                <div class="feature">⬇️ Download</div>
+                <div class="feature">🎮 Share</div>
+            </div>
+        </div>
+        <div class="footer">manifestmew.lol</div>
+    </div>
+
+    <script>
+        // Auto-hide instructions after 5 seconds
+        setTimeout(() => {
+            document.querySelector('.instructions').style.opacity = '0';
+            document.querySelector('.instructions').style.transition = 'opacity 1s';
+            setTimeout(() => {
+                document.querySelector('.instructions').style.display = 'none';
+            }, 1000);
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Pattern overlay -->
+  <pattern id="dots" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+    <circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+  
+  <!-- Main content -->
+  <g>
+    <!-- Cat emoji -->
+    <text x="600" y="220" font-size="120" text-anchor="middle" fill="white">🐱</text>
+    
+    <!-- Title -->
+    <text x="600" y="340" font-family="Arial, sans-serif" font-size="72" font-weight="900" text-anchor="middle" fill="white">
+      Manifest Mew
+    </text>
+    
+    <!-- Subtitle -->
+    <text x="600" y="400" font-family="Arial, sans-serif" font-size="36" font-weight="500" text-anchor="middle" fill="rgba(255,255,255,0.9)">
+      Steam Manifest Manager
+    </text>
+    
+    <!-- Features -->
+    <g transform="translate(600, 480)">
+      <!-- Upload -->
+      <rect x="-360" y="-25" width="160" height="50" rx="25" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      <text x="-280" y="8" font-family="Arial, sans-serif" font-size="24" font-weight="600" text-anchor="middle" fill="white">📤 Upload</text>
+      
+      <!-- Store -->
+      <rect x="-180" y="-25" width="140" height="50" rx="25" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      <text x="-110" y="8" font-family="Arial, sans-serif" font-size="24" font-weight="600" text-anchor="middle" fill="white">📦 Store</text>
+      
+      <!-- Download -->
+      <rect x="-20" y="-25" width="180" height="50" rx="25" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      <text x="70" y="8" font-family="Arial, sans-serif" font-size="24" font-weight="600" text-anchor="middle" fill="white">⬇️ Download</text>
+      
+      <!-- Share -->
+      <rect x="180" y="-25" width="140" height="50" rx="25" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+      <text x="250" y="8" font-family="Arial, sans-serif" font-size="24" font-weight="600" text-anchor="middle" fill="white">🎮 Share</text>
+    </g>
+    
+    <!-- Footer -->
+    <text x="600" y="590" font-family="Arial, sans-serif" font-size="28" font-weight="500" text-anchor="middle" fill="rgba(255,255,255,0.7)">
+      manifestmew.lol
+    </text>
+  </g>
+</svg>
