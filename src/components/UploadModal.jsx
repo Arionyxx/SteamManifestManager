@@ -5,7 +5,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     game_name: '',
     app_id: '',
     uploader_name: '',
-    notes: '',
+    notes: 'This includes manifest and lua files drag to steamtools floating window to add to ur library make sure you have unlock mode on.',
   });
   const [manifestFiles, setManifestFiles] = useState([]);
   const [luaFile, setLuaFile] = useState(null);
@@ -38,7 +38,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
         game_name: '',
         app_id: '',
         uploader_name: '',
-        notes: '',
+        notes: 'This includes manifest and lua files drag to steamtools floating window to add to ur library make sure you have unlock mode on.',
       });
       setManifestFiles([]);
       setLuaFile(null);
@@ -109,6 +109,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
               placeholder="Any additional notes..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows="3"
             ></textarea>
           </div>
 
