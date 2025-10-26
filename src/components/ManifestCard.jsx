@@ -77,7 +77,7 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
   return (
     <div className="group card bg-base-200 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-base-300 hover:border-primary">
       {/* Game Cover Image */}
-      <figure className="relative h-32 overflow-hidden bg-base-300">
+      <figure className="relative h-40 overflow-hidden bg-base-300">
         {!imageError ? (
           <img 
             src={gameImageUrl} 
@@ -96,47 +96,47 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </figure>
-      <div className="card-body p-4">
-        <h2 className="card-title text-base mb-2">
+      <div className="card-body p-5">
+        <h2 className="card-title text-lg mb-3">
           <span className="truncate">{manifest.game_name}</span>
-          <div className="badge badge-primary badge-sm">{manifest.app_id}</div>
+          <div className="badge badge-primary">{manifest.app_id}</div>
         </h2>
         
-        <div className="space-y-1 text-xs">
+        <div className="space-y-2 text-sm">
           <div className="flex justify-between items-center gap-2">
-            <span className="text-base-content/60">Manifest:</span>
-            <span className="font-mono text-xs truncate">{manifest.manifest_id}</span>
+            <span className="text-base-content/60 font-medium">Manifest:</span>
+            <span className="font-mono text-sm truncate">{manifest.manifest_id}</span>
           </div>
           
           {manifest.depot_id && (
             <div className="flex justify-between items-center gap-2">
-              <span className="text-base-content/60">Depot:</span>
-              <span className="font-mono text-xs">{manifest.depot_id}</span>
+              <span className="text-base-content/60 font-medium">Depot:</span>
+              <span className="font-mono text-sm">{manifest.depot_id}</span>
             </div>
           )}
           
           <div className="flex justify-between items-center gap-2">
-            <span className="text-base-content/60">Size:</span>
-            <span className="badge badge-ghost badge-sm">{formatSize(manifest.file_size)}</span>
+            <span className="text-base-content/60 font-medium">Size:</span>
+            <span className="badge badge-ghost">{formatSize(manifest.file_size)}</span>
           </div>
           
           {manifest.uploader_name && (
             <div className="flex justify-between items-center gap-2">
-              <span className="text-base-content/60">By:</span>
+              <span className="text-base-content/60 font-medium">By:</span>
               <span className="truncate">{manifest.uploader_name}</span>
             </div>
           )}
           
           {manifest.notes && (
-            <div className="mt-2 p-2 bg-base-300 rounded text-xs opacity-80 line-clamp-2">
-              {manifest.notes}
+            <div className="mt-3 p-3 bg-base-300 rounded text-sm max-h-24 overflow-y-auto">
+              <p className="whitespace-pre-wrap break-words">{manifest.notes}</p>
             </div>
           )}
         </div>
 
-        <div className="card-actions justify-end mt-3 gap-1">
+        <div className="card-actions justify-end mt-4 gap-2">
           <button 
-            className="btn btn-xs btn-info gap-1"
+            className="btn btn-sm btn-info gap-1"
             onClick={downloadManifest}
           >
             ⬇️ Download
@@ -144,13 +144,13 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
           {canDelete && (
             <>
               <button 
-                className="btn btn-xs btn-warning gap-1"
+                className="btn btn-sm btn-warning gap-1"
                 onClick={() => onEdit(manifest)}
               >
                 ✏️ Edit
               </button>
               <button 
-                className="btn btn-xs btn-error gap-1"
+                className="btn btn-sm btn-error gap-1"
                 onClick={handleDelete}
               >
                 🗑️ Delete
