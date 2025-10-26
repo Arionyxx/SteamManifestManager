@@ -12,11 +12,26 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
   const [gameImage, setGameImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
     if (manifestFiles.length === 0 && !luaFile) {
-      alert('Please select at least one file (.manifest or .lua)');
+      setError('Please select at least one file (.manifest or .lua)');
+      return;
+    }
+    
+    // Check file sizes
+    for (const file of manifestFiles) {
+      if (file.size > 50 * 1024 * 1024) {
+        setError(`File "${file.name}" is too large. Maximum size is 50MB per file.`);
+        return;
+      }
+    }
+    if (luaFile && luaFile.size > 50 * 1024 * 1024) {
+      setError(`Lua file is too large. Maximum size is 50MB.`);
       return;
     }
 
@@ -46,7 +61,8 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
       setImagePreview('');
       onClose();
     } catch (error) {
-      alert('Upload failed: ' + error.message);
+      console.error('Upload error:', error);
+      setError(error.message || 'Upload failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -58,6 +74,14 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
         <h3 className="font-bold text-2xl mb-4">Upload Steam Manifest</h3>
+        {error && (
+          <div className="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="form-control">
             <label className="label">

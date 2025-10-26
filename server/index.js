@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import multer from 'multer';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import manifestRoutes from './routes/manifestRoutes.js';
@@ -22,9 +23,9 @@ app.use(cors({
 
 // Additional CORS headers for preflight requests
 app.options('*', cors());
-// Increase body size limit to 10MB for profile pictures
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Increase body size limit to 50MB for profile pictures and large manifests
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -33,6 +34,32 @@ app.use('/api', manifestRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Error handling middleware for multer errors
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'File too large. Maximum size is 50MB per file.' 
+      });
+    }
+    return res.status(400).json({ 
+      success: false, 
+      error: `Upload error: ${err.message}` 
+    });
+  }
+  
+  if (err) {
+    console.error('Server error:', err);
+    return res.status(500).json({ 
+      success: false, 
+      error: err.message || 'Internal server error' 
+    });
+  }
+  
+  next();
 });
 
 // Create HTTP server

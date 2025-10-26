@@ -11,7 +11,12 @@ import {
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit for manifest files
+  }
+});
 
 // Public routes
 router.get('/manifests', getAllManifests);

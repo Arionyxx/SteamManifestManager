@@ -20,6 +20,19 @@ export const manifestAPI = {
       },
       body: formData,
     });
+    
+    if (!response.ok) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      } else {
+        const text = await response.text();
+        console.error('Server returned HTML instead of JSON:', text);
+        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+      }
+    }
+    
     return response.json();
   },
 
