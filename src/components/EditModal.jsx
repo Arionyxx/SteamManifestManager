@@ -184,8 +184,8 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
-                    if (file.size > 2 * 1024 * 1024) {
-                      alert('Image must be smaller than 2MB');
+                    if (file.size > 10 * 1024 * 1024) {
+                      alert('Image must be smaller than 10MB');
                       return;
                     }
                     const reader = new FileReader();
@@ -197,7 +197,7 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
                   }}
                 />
                 <label className="label">
-                  <span className="label-text-alt">Upload new game image to replace current (max 2MB)</span>
+                  <span className="label-text-alt">Upload new game image to replace current (max 10MB)</span>
                 </label>
                 {imagePreview && (
                   <button
