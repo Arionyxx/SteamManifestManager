@@ -7,7 +7,7 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
   });
   const [gameImage, setGameImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
-  const [manifestFile, setManifestFile] = useState(null);
+  const [manifestFiles, setManifestFiles] = useState([]);
   const [luaFile, setLuaFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,19 +29,24 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
     try {
       // If files are selected, we need to process them
       let fileContent = null;
-      if (manifestFile || luaFile) {
+      if (manifestFiles.length > 0 || luaFile) {
         // Read and encode files
         let content = '';
-        if (manifestFile) {
+        
+        // Process all manifest files
+        for (let i = 0; i < manifestFiles.length; i++) {
+          const manifestFile = manifestFiles[i];
           const manifestData = await manifestFile.arrayBuffer();
           const manifestBase64 = btoa(String.fromCharCode(...new Uint8Array(manifestData)));
+          if (i > 0) content += '\n\n';
           content += '=== MANIFEST FILE (BASE64) ===\n';
           content += manifestBase64;
         }
+        
         if (luaFile) {
           const luaData = await luaFile.arrayBuffer();
           const luaBase64 = btoa(String.fromCharCode(...new Uint8Array(luaData)));
-          if (manifestFile) content += '\n\n';
+          if (manifestFiles.length > 0) content += '\n\n';
           content += '=== LUA FILE (BASE64) ===\n';
           content += luaBase64;
         }
@@ -107,21 +112,33 @@ export default function EditModal({ isOpen, onClose, manifest, onSave }) {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Replace Manifest File (.manifest, .acf, .txt)</span>
+              <span className="label-text">Replace Manifest Files (.manifest, .acf, .txt)</span>
             </label>
             <input
               type="file"
               className="file-input file-input-bordered w-full"
-              onChange={(e) => setManifestFile(e.target.files[0])}
+              onChange={(e) => setManifestFiles(Array.from(e.target.files))}
               accept=".acf,.txt,.manifest"
+              multiple
             />
-            {manifestFile && (
-              <label className="label">
-                <span className="label-text-alt text-success">✓ {manifestFile.name} - Will replace existing</span>
-              </label>
+            {manifestFiles.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {manifestFiles.map((file, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="label-text-alt text-success">✓ {file.name} - Will replace existing</span>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-ghost"
+                      onClick={() => setManifestFiles(manifestFiles.filter((_, i) => i !== index))}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
             <label className="label">
-              <span className="label-text-alt">Optional: Upload new manifest file to replace current version</span>
+              <span className="label-text-alt">Optional: Upload new manifest files to replace current version (select multiple for DLCs)</span>
             </label>
           </div>
 
