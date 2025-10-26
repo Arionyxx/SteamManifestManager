@@ -7,7 +7,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
     uploader_name: '',
     notes: '',
   });
-  const [manifestFile, setManifestFile] = useState(null);
+  const [manifestFiles, setManifestFiles] = useState([]);
   const [luaFile, setLuaFile] = useState(null);
   const [gameImage, setGameImage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
@@ -15,14 +15,17 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!manifestFile && !luaFile) {
+    if (manifestFiles.length === 0 && !luaFile) {
       alert('Please select at least one file (.manifest or .lua)');
       return;
     }
 
     setLoading(true);
     const data = new FormData();
-    if (manifestFile) data.append('manifest', manifestFile);
+    // Append all manifest files
+    manifestFiles.forEach((file) => {
+      data.append('manifest', file);
+    });
     if (luaFile) data.append('lua', luaFile);
     if (gameImage) data.append('game_image', gameImage);
     Object.keys(formData).forEach(key => {
@@ -37,7 +40,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
         uploader_name: '',
         notes: '',
       });
-      setManifestFile(null);
+      setManifestFiles([]);
       setLuaFile(null);
       setGameImage('');
       setImagePreview('');
@@ -150,19 +153,34 @@ export default function UploadModal({ isOpen, onClose, onUpload }) {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Manifest File (.manifest, .acf, .txt)</span>
+              <span className="label-text">Manifest Files (.manifest, .acf, .txt)</span>
             </label>
             <input
               type="file"
               className="file-input file-input-bordered w-full"
-              onChange={(e) => setManifestFile(e.target.files[0])}
+              onChange={(e) => setManifestFiles(Array.from(e.target.files))}
               accept=".acf,.txt,.manifest"
+              multiple
             />
-            {manifestFile && (
-              <label className="label">
-                <span className="label-text-alt text-success">✓ {manifestFile.name}</span>
-              </label>
+            {manifestFiles.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {manifestFiles.map((file, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="label-text-alt text-success">✓ {file.name}</span>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-ghost"
+                      onClick={() => setManifestFiles(manifestFiles.filter((_, i) => i !== index))}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
+            <label className="label">
+              <span className="label-text-alt">Select multiple files for games with DLCs</span>
+            </label>
           </div>
 
           <div className="form-control">
