@@ -75,90 +75,85 @@ export default function ManifestCard({ manifest, onDelete, onEdit, canDelete = f
   };
 
   return (
-    <div className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all">
+    <div className="group card bg-base-200 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-base-300 hover:border-primary">
       {/* Game Cover Image */}
-      <figure className="h-48 overflow-hidden bg-base-300">
+      <figure className="relative h-32 overflow-hidden bg-base-300">
         {!imageError ? (
           <img 
             src={gameImageUrl} 
             alt={manifest.game_name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-base-300 to-base-100">
-            <div className="text-center p-4">
-              <div className="text-4xl mb-2">🎮</div>
-              <div className="text-sm font-semibold">{manifest.game_name}</div>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+            <div className="text-center p-2">
+              <div className="text-3xl mb-1">🎮</div>
+              <div className="text-xs font-semibold">{manifest.game_name}</div>
             </div>
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </figure>
-      <div className="card-body">
-        <h2 className="card-title text-xl">
-          {manifest.game_name}
-          <div className="badge badge-primary">{manifest.app_id}</div>
+      <div className="card-body p-4">
+        <h2 className="card-title text-base mb-2">
+          <span className="truncate">{manifest.game_name}</span>
+          <div className="badge badge-primary badge-sm">{manifest.app_id}</div>
         </h2>
         
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="font-semibold">Manifest ID:</span>
-            <span className="font-mono">{manifest.manifest_id}</span>
+        <div className="space-y-1 text-xs">
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-base-content/60">Manifest:</span>
+            <span className="font-mono text-xs truncate">{manifest.manifest_id}</span>
           </div>
           
           {manifest.depot_id && (
-            <div className="flex justify-between">
-              <span className="font-semibold">Depot ID:</span>
-              <span className="font-mono">{manifest.depot_id}</span>
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-base-content/60">Depot:</span>
+              <span className="font-mono text-xs">{manifest.depot_id}</span>
             </div>
           )}
           
-          <div className="flex justify-between">
-            <span className="font-semibold">Size:</span>
-            <span>{formatSize(manifest.file_size)}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="font-semibold">Uploaded:</span>
-            <span>{formatDate(manifest.uploaded_at)}</span>
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-base-content/60">Size:</span>
+            <span className="badge badge-ghost badge-sm">{formatSize(manifest.file_size)}</span>
           </div>
           
           {manifest.uploader_name && (
-            <div className="flex justify-between">
-              <span className="font-semibold">By:</span>
-              <span>{manifest.uploader_name}</span>
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-base-content/60">By:</span>
+              <span className="truncate">{manifest.uploader_name}</span>
             </div>
           )}
           
           {manifest.notes && (
-            <div className="mt-2">
-              <span className="font-semibold">Notes:</span>
-              <p className="text-xs mt-1 opacity-80">{manifest.notes}</p>
+            <div className="mt-2 p-2 bg-base-300 rounded text-xs opacity-80 line-clamp-2">
+              {manifest.notes}
             </div>
           )}
         </div>
 
-        <div className="card-actions justify-end mt-4">
+        <div className="card-actions justify-end mt-3 gap-1">
           <button 
-            className="btn btn-sm btn-info"
+            className="btn btn-xs btn-info gap-1"
             onClick={downloadManifest}
           >
-            Download ZIP
+            ⬇️ Download
           </button>
           {canDelete && (
             <>
               <button 
-                className="btn btn-sm btn-warning"
+                className="btn btn-xs btn-warning gap-1"
                 onClick={() => onEdit(manifest)}
               >
-                Edit
+                ✏️ Edit
               </button>
               <button 
-                className="btn btn-sm btn-error"
+                className="btn btn-xs btn-error gap-1"
                 onClick={handleDelete}
               >
-                Delete
+                🗑️ Delete
               </button>
             </>
           )}
